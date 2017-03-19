@@ -2,7 +2,7 @@
   "name": "angular-component-extension",
   "displayName": "Angular Component Extension",
   "description": "An Extension for Angular @Component",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "publisher": "onixie",
   "engines": {
     "vscode": "^1.10.0"
@@ -46,10 +46,12 @@
   "devDependencies": {
     "typescript": "^2.0.3",
     "vscode": "^1.0.0",
-    "vscode-html-languageservice": "^2.0.1",
-    "vscode-css-languageservice": "^2.0.0",
     "mocha": "^2.3.3",
     "@types/node": "^6.0.40",
     "@types/mocha": "^2.2.32"
+  },
+  "dependencies": {
+    "vscode-html-languageservice": "^2.0.1",
+    "vscode-css-languageservice": "^2.0.0"
   }
 }
