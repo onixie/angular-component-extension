@@ -1,0 +1,72 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Angular @Component Inline Template",
+	"patterns": [
+		{
+			"include": "#component"
+		},
+		{
+			"include": "source.ts"
+		}
+	],
+	"repository": {
+		"component": {
+			"name": "meta.component.decoration",
+			"begin": "@\\s*Component\\s*\\(\\s*\\{",
+			"end": "\\}\\s*\\)",
+			"patterns": [
+				{
+					"include": "#template"
+				},
+				{
+					"include": "#styles"
+				},
+				{
+					"include": "source.ts"
+				}
+			]
+		},
+		"template": {
+			"name": "meta.template.property",
+			"begin": "(?<=template)\\s*:\\s*`",
+			"end": "`\\s*",
+			"patterns": [
+				{
+					"include": "text.xml"
+				},
+				{
+					"name": "meta.template.expression",
+					"begin": "\\{\\{",
+					"end": "\\}\\}",
+					"patterns": [
+						{
+							"include": "source.js"
+						}
+					]
+				}
+			]
+		},
+		"styles": {
+			"name": "meta.styles.property",
+			"begin": "(?<=styles)\\s*:\\s*\\[",
+			"end": "\\]",
+			"patterns": [
+				{
+					"name": "meta.separator",
+					"match": ","
+				},
+				{
+					"name": "meta.style.css",
+					"begin": "`",
+					"end": "`",
+					"patterns": [
+						{
+							"include": "source.css"
+						}
+					]
+				}
+			]
+		}
+	},
+	"scopeName": "source.ts.inline-template"
+}

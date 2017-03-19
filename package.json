@@ -1,0 +1,55 @@
+{
+  "name": "angular-component-extension",
+  "displayName": "Angular Component Extension",
+  "description": "An Extension for Angular @Component",
+  "version": "0.0.1",
+  "publisher": "onixie",
+  "engines": {
+    "vscode": "^1.10.0"
+  },
+  "categories": [
+    "Languages"
+  ],
+  "activationEvents": [
+    "onLanguage:typescript"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "keybindings": [
+      {
+        "command": "format.angular.component",
+        "key": "shift+alt+f",
+        "when": "editorLangId == typescript"
+      }
+    ],
+    "grammars": [
+      {
+        "embeddedLanguages": {
+          "meta.style.css": "source.css",
+          "meta.template.property": "text.xml"
+        },
+        "scopeName": "source.ts.inline-template",
+        "language": "typescript",
+        "path": "./syntaxes/inline-template.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "node ./node_modules/vscode/bin/test"
+  },
+  "extensionDependencies": [
+    "vscode.typescript"
+  ],
+  "devDependencies": {
+    "typescript": "^2.0.3",
+    "vscode": "^1.0.0",
+    "vscode-html-languageservice": "^2.0.1",
+    "vscode-css-languageservice": "^2.0.0",
+    "mocha": "^2.3.3",
+    "@types/node": "^6.0.40",
+    "@types/mocha": "^2.2.32"
+  }
+}
