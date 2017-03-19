@@ -32,11 +32,12 @@ function defineFormatCommand(context) {
 
 function formatIninlineTemplate() {
     let config = vscode.workspace.getConfiguration("html");
-    let tabSize = vscode.workspace.getConfiguration("editor").get<number>("tabSize");
     let format = Object.assign({}, config.format);
-    let document = vscode.window.activeTextEditor.document;
+    let activeEditor = vscode.window.activeTextEditor;
+    let tabSize = <number>activeEditor.options.tabSize;
+    let document = activeEditor.document;
     let targetRange = getTemplateRange(document);
-
+    
     if (!targetRange || targetRange.isEmpty) {
         return;
     }
@@ -45,11 +46,11 @@ function formatIninlineTemplate() {
         .format(<any>document, targetRange, format)
         .forEach(async result => {
             // Format
-            await vscode.window.activeTextEditor.edit(editor => {
+            await activeEditor.edit(editor => {
                 editor.replace(<any>result.range, result.newText);
             });
             // Indent 
-            await vscode.window.activeTextEditor.edit(editor => {
+            await activeEditor.edit(editor => {
                 let start = result.range.start.line;
                 let end = result.range.end.line;
                 while (start++ < end) {
@@ -59,15 +60,15 @@ function formatIninlineTemplate() {
         });
 }
 
-function getTemplateRange(doc: vscode.TextDocument, selectedRange?: vscode.Range): vscode.Range {
-    let text = doc.getText();
+function getTemplateRange(document: vscode.TextDocument, selectedRange?: vscode.Range): vscode.Range {
+    let text = document.getText();
     let compRegex = /(@)\s*Component\s*\(\s*\{[\s\S]*\}\s*(\))/igm;
     let tempRegex = /template\s*:\s*(`)(\\\\|\\`|[^`])*(`)/igm;
     let compStart = compRegex.exec(text);
     let tempStart = tempRegex.exec(text);
 
     if (compStart.index < tempStart.index && compRegex.lastIndex > tempRegex.lastIndex) {
-        let templateRange = new vscode.Range(doc.positionAt(tempStart.index), doc.positionAt(tempRegex.lastIndex));
+        let templateRange = new vscode.Range(document.positionAt(tempStart.index), document.positionAt(tempRegex.lastIndex));
         if (selectedRange) {
             return selectedRange.intersection(templateRange);
         } else {
