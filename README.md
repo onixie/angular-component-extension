@@ -11,7 +11,15 @@ A vscode extension for Angular @Component.
 ## Extension Settings
 
 ## Known Issues
-- Only typescript is supported but javascript support is planned.
-- Format Css is not yet implemented.
+
+### Language
+- Javascript support.
+
+### Function
+
+#### Code Formatting
+- Multiple components in single file.
+- Multiple strings in the array of styles.
+- User sometimes needs to format 2 times to get stable result.
 
 ## Release Notes
