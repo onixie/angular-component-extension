@@ -49,7 +49,7 @@ function registFormatCommand(context) {
 // Template
 async function formatIninlineTemplate(selectedRange?: vsc.Range) {
     let config = vsc.workspace.getConfiguration("html");
-    let format = Object.assign({}, config.format);
+    let format = Object.assign({}, (<any>config).format);
     let editor = vsc.window.activeTextEditor;
     let tabSize = <number>editor.options.tabSize;
     let document = editor.document;
