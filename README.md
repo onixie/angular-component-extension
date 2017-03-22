@@ -6,6 +6,7 @@ A vscode extension for Angular @Component.
 - Language support for inline-defined template and styles
   - Syntax highlighting
   - Code Formatting
+  - Code Completion for known Components (T.B.I)
 
 ## Extension Settings
 

@@ -20,6 +20,11 @@
         "command": "format.angular.component",
         "key": "shift+alt+f",
         "when": "editorLangId == typescript"
+      },
+      {
+        "command": "selection.format.angular.component",
+        "key": "ctrl+k ctrl+f",
+        "when": "editorLangId == typescript"
       }
     ],
     "grammars": [
@@ -40,18 +45,16 @@
     "postinstall": "node ./node_modules/vscode/bin/install",
     "test": "node ./node_modules/vscode/bin/test"
   },
-  "extensionDependencies": [
-    "vscode.typescript"
-  ],
   "devDependencies": {
-    "typescript": "^2.0.3",
-    "vscode": "^1.0.0",
-    "mocha": "^2.3.3",
+    "@types/js-beautify": "0.0.28",
+    "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
-    "@types/mocha": "^2.2.32"
+    "mocha": "^2.3.3",
+    "typescript": "^2.0.3",
+    "vscode": "^1.0.0"
   },
   "dependencies": {
-    "vscode-html-languageservice": "^2.0.1",
-    "vscode-css-languageservice": "^2.0.0"
+    "js-beautify": "^1.6.12",
+    "typescript": "^2.2.1"
   }
 }
