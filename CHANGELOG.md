@@ -8,6 +8,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Multiple components support
 - Multiple style string support
 
+## [v0.0.5]
+### Fixed
+Some null exception cases
+
 ## [v0.0.4]
 ### Added
 - Css formatting
