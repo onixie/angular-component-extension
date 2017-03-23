@@ -55,7 +55,7 @@ async function formatIninlineTemplate(selectedRange?: vsc.Range) {
     let document = editor.document;
 
     let targetRange = getTemplateRange(document, selectedRange);
-    let targetRanges = getTemplateRanges(document, selectedRange); // T.B.D: support multiple components in single file
+    //let targetRanges = getTemplateRanges(document, selectedRange); // T.B.D: support multiple components in single file
     if (!targetRange || targetRange.isEmpty)
         return;
 
@@ -79,6 +79,10 @@ function getTemplateRange(document: vsc.TextDocument, selectedRange?: vsc.Range)
     let tempRegex = /template\s*:\s*(`)(\\\\|\\`|[^`])*(`)/igm;
     let compStart = compRegex.exec(text);
     let tempStart = tempRegex.exec(text);
+
+    if (!compStart || !tempStart)
+        return;
+
     let startIndex = tempStart.index + tempStart[0].indexOf("`");
 
     if (compStart.index > tempStart.index || compRegex.lastIndex < tempRegex.lastIndex)
@@ -117,7 +121,10 @@ async function formatIninlineStyles(selectedRange?: vsc.Range) {
     let tabSize = <number>editor.options.tabSize;
     let document = editor.document;
     let targetRange = getStylesRange(document, selectedRange);
-    let targetRanges = getStylesRanges(document, selectedRange);
+    //let targetRanges = getStylesRanges(document, selectedRange);
+    if (!targetRange)
+        return;
+
     let formatter = new CssRangeFormattingEditProvider();
     let edits = await formatter.provideDocumentRangeFormattingEdits(document, targetRange);
 
@@ -141,6 +148,10 @@ function getStylesRange(document: vsc.TextDocument, selectedRange?: vsc.Range) {
     let stylRegex = /styles\s*:\s*\[\s*((`)(\\\\|\\`|[^`])*(`)\s*,?\s*)*\]/igm;
     let compStart = compRegex.exec(text);
     let stylStart = stylRegex.exec(text);
+    
+    if (!compStart || !stylStart)
+        return;
+
     let startIndex = stylStart.index + stylStart[0].indexOf("`");
     let endIndex = stylStart.index + stylStart[0].lastIndexOf("`");
 
