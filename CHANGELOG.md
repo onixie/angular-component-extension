@@ -4,13 +4,16 @@ All notable changes to the "angular-component-extension" extension will be docum
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
-### Fix
-- Multiple components support
-- Multiple style string support
+
 
 ## [v0.0.5]
+### Added
+- Support multiple components formatting in one file simultaneously
+### Changed
+- Trim text between start and end tag (violate xml standard though)
+- Locate format ranges by parsing typescript, instead of unstable regex matching
 ### Fixed
-Some null exception cases
+- Some null exception cases
 
 ## [v0.0.4]
 ### Added

@@ -54,42 +54,30 @@ async function formatIninlineTemplate(selectedRange?: vsc.Range) {
     let tabSize = <number>editor.options.tabSize;
     let document = editor.document;
 
-    let targetRange = getTemplateRange(document, selectedRange);
-    //let targetRanges = getTemplateRanges(document, selectedRange); // T.B.D: support multiple components in single file
-    if (!targetRange || targetRange.isEmpty)
+    let targetRanges = getTemplateRanges(document, selectedRange);
+    if (!targetRanges || targetRanges.length <= 0)
         return;
 
+    console.log(targetRanges);
     let formatter = new vscodeXmlFormatting.XmlFormattingEditProvider();
-    let edit = formatter.provideDocumentRangeFormattingEdits(document, targetRange, format)[0];
-    if (edit && edit.newText) {
-        await editor.edit(editor => {
+    let edits = targetRanges.map(r =>
+        formatter.provideDocumentRangeFormattingEdits(document, r, format)[0]
+    );
+
+    await editor.edit(editor => {
+        edits.forEach(edit => {
             let indent = " ".repeat(tabSize * 2);
-            let indented = edit.newText
+            let indented = "\n" + edit.newText
                 .split("\n")
-                .map(ln => (indent + ln).replace(/\s*$/, ""))
+                .filter(ln => ln.trim() !== "")
+                .map(ln => (indent + ln)
+                    .replace(/\s*$/, "")
+                    .replace(/>\s*(\S*)\s*<\//, ">$1</")
+                    .replace(/\/>\s*(\S*)/, "/>$1"))
                 .join("\n");
             editor.replace(edit.range, indented);
         });
-    }
-}
-
-function getTemplateRange(document: vsc.TextDocument, selectedRange?: vsc.Range): vsc.Range {
-    let text = document.getText();
-    let compRegex = /(@)\s*Component\s*\(\s*\{[\s\S]*\}\s*(\))/igm;
-    let tempRegex = /template\s*:\s*(`)(\\\\|\\`|[^`])*(`)/igm;
-    let compStart = compRegex.exec(text);
-    let tempStart = tempRegex.exec(text);
-
-    if (!compStart || !tempStart)
-        return;
-
-    let startIndex = tempStart.index + tempStart[0].indexOf("`");
-
-    if (compStart.index > tempStart.index || compRegex.lastIndex < tempRegex.lastIndex)
-        return null;
-
-    let range = new vsc.Range(document.positionAt(startIndex).translate(0, 1), document.positionAt(tempRegex.lastIndex).translate(0, -1));
-    return selectedRange ? range.intersection(selectedRange) : range;
+    });
 }
 
 function getTemplateRanges(document: vsc.TextDocument, selectedRange?: vsc.Range): vsc.Range[] {
@@ -120,46 +108,28 @@ async function formatIninlineStyles(selectedRange?: vsc.Range) {
     let editor = vsc.window.activeTextEditor;
     let tabSize = <number>editor.options.tabSize;
     let document = editor.document;
-    let targetRange = getStylesRange(document, selectedRange);
-    //let targetRanges = getStylesRanges(document, selectedRange);
-    if (!targetRange)
+    let targetRanges = getStylesRanges(document, selectedRange);
+    if (!targetRanges || targetRanges.length <= 0)
         return;
 
     let formatter = new CssRangeFormattingEditProvider();
-    let edits = await formatter.provideDocumentRangeFormattingEdits(document, targetRange);
+    let ranges = targetRanges.reduce((p, c) => c.concat(p));
+    console.log(ranges);
+    let edits = ranges.map(
+        r => formatter.provideDocumentRangeFormattingEdits(document, r)[0]
+    );
 
-    if (edits && edits.length > 0) {
-        await editor.edit(editor => {
-            edits.forEach(edit => {
-                let indent = " ".repeat(tabSize * 2);
-                let indented = "\n" + edit.newText
-                    .split("\n")
-                    .map(ln => (indent + ln).replace(/\s*$/, ""))
-                    .join("\n");
-                editor.replace(edit.range, indented);
-            });
+    await editor.edit(editor => {
+        edits.forEach(edit => {
+            let indent = " ".repeat(tabSize * 2);
+            let indented = "\n" + edit.newText
+                .split("\n")
+                .filter(ln => ln.trim() !== "")
+                .map(ln => (indent + ln).replace(/\s*$/, ""))
+                .join("\n");
+            editor.replace(edit.range, indented);
         });
-    }
-}
-
-function getStylesRange(document: vsc.TextDocument, selectedRange?: vsc.Range) {
-    let text = document.getText();
-    let compRegex = /(@)\s*Component\s*\(\s*\{[\s\S]*\}\s*(\))/igm;
-    let stylRegex = /styles\s*:\s*\[\s*((`)(\\\\|\\`|[^`])*(`)\s*,?\s*)*\]/igm;
-    let compStart = compRegex.exec(text);
-    let stylStart = stylRegex.exec(text);
-    
-    if (!compStart || !stylStart)
-        return;
-
-    let startIndex = stylStart.index + stylStart[0].indexOf("`");
-    let endIndex = stylStart.index + stylStart[0].lastIndexOf("`");
-
-    if (compStart.index > stylStart.index || compRegex.lastIndex < stylRegex.lastIndex)
-        return null;
-
-    let range = new vsc.Range(document.positionAt(startIndex).translate(0, 1), document.positionAt(endIndex));
-    return selectedRange ? range.intersection(selectedRange) : range;
+    });
 }
 
 function getStylesRanges(document: vsc.TextDocument, selectedRange?: vsc.Range): vsc.Range[][] {
@@ -185,6 +155,15 @@ function createSourceFile(doc: vsc.TextDocument): ts.SourceFile {
     let options = ts.getDefaultCompilerOptions();
     let host = ts.createCompilerHost(options);
     let src = host.getSourceFile(doc.fileName, options.target);
+    let newContent = doc.getText();
+    let allRange: ts.TextChangeRange = {
+        span: {
+            start: 0,
+            length: src.endOfFileToken.end
+        },
+        newLength: newContent.length
+    };
+    src = src.update(newContent, allRange);
     return src;
 }
 
@@ -247,7 +226,7 @@ function getComponentDecoratorTemplateRange(dec: ts.Decorator, doc: vsc.TextDocu
         );
         if (template && isTemplateString(template.initializer)) {
             let i = <ts.TemplateExpression>template.initializer;
-            return new vsc.Range(doc.positionAt(i.pos).translate(0, 2), doc.positionAt(i.end).translate(0, -1));
+            return getActualRange(i, doc);
         }
     }
     return null;
@@ -267,11 +246,16 @@ function getComponentDecoratorStylesRanges(dec: ts.Decorator, doc: vsc.TextDocum
         );
         if (styles && styles.initializer.kind === ts.SyntaxKind.ArrayLiteralExpression) {
             let a = <ts.ArrayLiteralExpression>styles.initializer;
-            return a.elements.filter(isTemplateString).map(e =>
-                new vsc.Range(doc.positionAt(e.pos).translate(0, 2), doc.positionAt(e.end).translate(0, -1))
-            );
+            return a.elements.filter(isTemplateString).map(e => getActualRange(e, doc));
         }
         return null;
     }
     return null;
+}
+
+function getActualRange(node: ts.Node, doc: vsc.TextDocument): vsc.Range {
+    let text = doc.getText(new vsc.Range(doc.positionAt(node.pos), doc.positionAt(node.end)));
+    let s = text.indexOf("`");
+    let e = text.lastIndexOf("`");
+    return new vsc.Range(doc.positionAt(node.pos + s + 1), doc.positionAt(node.pos + e));
 }
