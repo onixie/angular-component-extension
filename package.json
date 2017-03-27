@@ -55,6 +55,8 @@
   },
   "dependencies": {
     "js-beautify": "^1.6.12",
-    "typescript": "^2.2.1"
+    "typescript": "^2.2.1",
+    "vscode-languageclient": "^3.2.0",
+    "vscode-languageserver": "^3.2.0"
   }
 }

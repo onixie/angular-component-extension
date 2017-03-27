@@ -4,7 +4,7 @@ All notable changes to the "angular-component-extension" extension will be docum
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
-
+- Code Completion for known components in template.
 
 ## [v0.0.5]
 ### Added
