@@ -55,8 +55,7 @@ async function formatInlineTemplate(selectedRange?: vsc.Range) {
                 .filter(ln => ln.trim() !== "")
                 .map(ln => (indent + ln)
                     .replace(/\s*$/, "")
-                    .replace(/>\s*(\S*)\s*<\//, ">$1</")
-                    .replace(/\/>\s*(\S*)/, "/>$1"))
+                    .replace(/(^\s*<(?:[^<>=]|=\s*"[^"]*"|=\s*'[^']*')+>)\s*(.*?)\s*(<\/[^<>=]+>)?$/, "$1$2$3"))
                 .join("\n");
             editor.replace(edit.range, indented);
         });
