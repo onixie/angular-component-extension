@@ -4,7 +4,8 @@ All notable changes to the "angular-component-extension" extension will be docum
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
-- Code Completion for known components in template.
+- Code Completion for selector, input and output in template.
+- Improve whitespace removal
 
 ## [v0.0.5]
 ### Added

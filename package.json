@@ -54,6 +54,8 @@
     "vscode": "^1.0.0"
   },
   "dependencies": {
+    "@types/glob": "^5.0.30",
+    "glob": "^7.1.1",
     "js-beautify": "^1.6.12",
     "typescript": "^2.2.1",
     "vscode-languageclient": "^3.2.0",

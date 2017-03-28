@@ -4,7 +4,7 @@ import * as vsc from 'vscode';
 import * as jsb from 'js-beautify';
 import * as ts from 'typescript';
 import * as vscodeXmlFormatting from '../vscode-xml/src/providers/Formatting';
-import * as utils from './utils';
+import * as utils from './vscUtils';
 
 export function registFormatCommand(context) {
     context.subscriptions.push(
@@ -63,7 +63,7 @@ async function formatInlineTemplate(selectedRange?: vsc.Range) {
 }
 
 function getTemplateRanges(document: vsc.TextDocument, selectedRange?: vsc.Range): vsc.Range[] {
-    let source = utils.createSourceFile(document);
+    let source = utils.createSourceFile(document.fileName, document.getText());
     let classes = utils.getClasses(source.statements);
     let components = utils.findComponents(classes);
 
@@ -71,7 +71,7 @@ function getTemplateRanges(document: vsc.TextDocument, selectedRange?: vsc.Range
         return null;
 
     return components.map(c => {
-        let dec = utils.getComponentDecorator(c[0]);
+        let dec = utils.getDecorator(c[0], 'Component');
         let range = utils.getComponentDecoratorTemplateRange(dec, document);
         return range && selectedRange ? range.intersection(selectedRange) : range;
     }).filter(range => range);
@@ -114,7 +114,7 @@ async function formatInlineStyles(selectedRange?: vsc.Range) {
 }
 
 function getStylesRanges(document: vsc.TextDocument, selectedRange?: vsc.Range): vsc.Range[][] {
-    let source = utils.createSourceFile(document);
+    let source = utils.createSourceFile(document.fileName, document.getText());
     let classes = utils.getClasses(source.statements);
     let components = utils.findComponents(classes);
 
@@ -122,7 +122,7 @@ function getStylesRanges(document: vsc.TextDocument, selectedRange?: vsc.Range):
         return null;
 
     return components.map(c => {
-        let dec = utils.getComponentDecorator(c[0]);
+        let dec = utils.getDecorator(c[0], 'Component');
         let ranges = utils.getComponentDecoratorStylesRanges(dec, document);
         return ranges ?
             ranges.map(r =>

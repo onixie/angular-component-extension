@@ -2,44 +2,8 @@
 
 import * as vsc from 'vscode';
 import * as ts from 'typescript';
-
-export function createSourceFile(doc: vsc.TextDocument): ts.SourceFile {
-    let options = ts.getDefaultCompilerOptions();
-    let host = ts.createCompilerHost(options);
-    let src = host.getSourceFile(doc.fileName, options.target);
-    let newContent = doc.getText();
-    let allRange: ts.TextChangeRange = {
-        span: {
-            start: 0,
-            length: src.endOfFileToken.end
-        },
-        newLength: newContent.length
-    };
-    src = src.update(newContent, allRange);
-    return src;
-}
-
-export function getClasses(nodes: ts.Node[]): ts.ClassDeclaration[] {
-    return nodes ? <ts.ClassDeclaration[]>nodes.filter(s =>
-        s.kind === ts.SyntaxKind.ClassDeclaration
-    ) : null;
-}
-
-export function findComponents(decls: ts.ClassDeclaration[]): [ts.ClassDeclaration, ts.Decorator][] {
-    return decls ? decls
-        .map<[ts.ClassDeclaration, ts.Decorator]>(d => [d, getComponentDecorator(d)])
-        .filter(n => !!n[1]) : null;
-}
-
-export function getComponentDecorator(decl: ts.ClassDeclaration): ts.Decorator {
-    return decl.decorators.find(d => {
-        let [name, _] = getDecoratorNameAndRange(<ts.Decorator>d);
-        if (name === 'Component') {
-            return true;
-        }
-        return false;
-    });
-}
+import * as tsUtils from './tsUtils';
+export * from './tsUtils';
 
 export function getDecoratorNameAndRange(dec: ts.Decorator, doc?: vsc.TextDocument): [string, vsc.Range] {
     let callExp = <ts.CallExpression>dec.expression;
@@ -48,20 +12,6 @@ export function getDecoratorNameAndRange(dec: ts.Decorator, doc?: vsc.TextDocume
     let name = caller.text;
     let range = doc ? new vsc.Range(doc.positionAt(caller.pos), doc.positionAt(caller.end)) : null;
     return [name, range];
-}
-
-export function getComponentDecoratorSelectorName(dec: ts.Decorator): string {
-    let callExp = <ts.CallExpression>dec.expression;
-    let callee = <ts.ObjectLiteralExpression>callExp.arguments[0];
-    if (callee) {
-        let selector = <ts.PropertyAssignment>callee.properties.find(p =>
-            (<ts.Identifier>p.name).text === 'selector'
-        );
-        if (selector) {
-            return (<ts.LiteralExpression>selector.initializer).text;
-        }
-    }
-    return null;
 }
 
 export function getComponentDecoratorTemplateRange(dec: ts.Decorator, doc: vsc.TextDocument): vsc.Range {
