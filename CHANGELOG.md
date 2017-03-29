@@ -4,10 +4,14 @@ All notable changes to the "angular-component-extension" extension will be docum
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
+
+## [v0.0.6]
+### Added
 - Code Completion for element selector, input and output
 - Go to Definition support for element selector
-- Improve whitespace removal
 - New shortcut key for language server restart
+### Fixed
+- Improve whitespace removal
 
 ## [v0.0.5]
 ### Added
