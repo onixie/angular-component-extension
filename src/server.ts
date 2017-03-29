@@ -7,6 +7,7 @@ import * as glob from 'glob';
 import * as ts from 'typescript';
 import * as fs from 'fs';
 import * as path from 'path';
+import uri from 'vscode-uri';
 
 let connection: vscls.IConnection = vscls.createConnection(new vscls.IPCMessageReader(process), new vscls.IPCMessageWriter(process));
 
@@ -23,12 +24,18 @@ connection.onInitialize((params): vscls.InitializeResult => {
             completionProvider: {
                 resolveProvider: true,
                 triggerCharacters: ['<', '[', '(', '/', '>']
-            }
+            },
+            definitionProvider: true
         }
     }
 });
 
 connection.listen();
+
+// Code Completion
+
+const XmlNameParts = /^(?:\w|\d|[-._:])+/;
+const XmlNameExact = /^(?:\w|[_:])(?:\w|\d|[-._:])*$/;
 
 interface CompletionCandidate {
     class: string;
@@ -155,6 +162,32 @@ connection.onCompletionResolve((item: vscls.CompletionItem): vscls.CompletionIte
     return item;
 })
 
+// Go to Definition
+connection.onDefinition((params: vscls.TextDocumentPositionParams): vscls.Location | vscls.Location[] => {
+    if (completion.candidates) {
+        let doc = documents.get(params.textDocument.uri);
+        let text = doc.getText();
+        let pos = doc.offsetAt(params.position);
+        let head = text.substring(0, pos);
+        let tail = text.substring(pos).match(XmlNameParts) || [""];
+        let start = head.lastIndexOf("<");
+        let selector = (head.substring(start + 1)
+            .split("").reverse().join("")
+            .match(XmlNameParts) || [""])[0]
+            .split("").reverse().join("") + tail;
+
+        let cand = completion.candidates.find(c => c.selector === selector);
+        if (cand) {
+            return vscls.Location.create(
+                uri.file(cand.src).toString(),
+                vscls.Range.create(0, 0, 0, 0)
+            );
+        }
+    }
+    return [];
+});
+
+// Internal
 function sweepTsFiles() {
     glob(`${workspaceRoot}/**/*.ts`, (err, match) => {
         if (err) {
@@ -167,19 +200,29 @@ function sweepTsFiles() {
                 return null;
             }
             return comps.map(c => createCandidate(c[0], c[1], src));
-        }).filter(x => x).reduce((p, c) => p.concat(c));
-        connection.window.showInformationMessage(`Found ${completion.candidates.length} Components`);
+        }).reduce((p, c) => p.concat(c)).filter(x => x);
+
+        if (completion.candidates.length) {
+            connection.window.showInformationMessage(
+                `Found ${completion.candidates.length} Components`
+            );
+        }
     });
 }
 
 function createCandidate(decl: ts.ClassDeclaration, dec: ts.Decorator, src: ts.SourceFile): CompletionCandidate {
-    return {
+    let cand = {
         class: (<ts.Identifier>decl.name).text,
         selector: utils.getComponentDecoratorSelectorName(dec),
         inputs: utils.getInputBinding(decl),
         outputs: utils.getOutputBinding(decl),
         src: src.fileName
     };
+
+    if (cand.selector.match(XmlNameExact)) {
+        return cand;
+    }
+    return null;
 }
 
 function getTriggerCharacter(pos: vscls.TextDocumentPositionParams): string[] {

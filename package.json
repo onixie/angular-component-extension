@@ -17,13 +17,18 @@
   "contributes": {
     "keybindings": [
       {
-        "command": "format.angular.component",
+        "command": "ng.c-ext.action.formatDocument",
         "key": "shift+alt+f",
         "when": "editorLangId == typescript"
       },
       {
-        "command": "selection.format.angular.component",
+        "command": "ng.c-ext.action.formatSelection",
         "key": "ctrl+k ctrl+f",
+        "when": "editorLangId == typescript"
+      },
+      {
+        "command": "ng.c-ext.action.restartServer",
+        "key": "ctrl+k ctrl+n",
         "when": "editorLangId == typescript"
       }
     ],
@@ -59,6 +64,7 @@
     "js-beautify": "^1.6.12",
     "typescript": "^2.2.1",
     "vscode-languageclient": "^3.2.0",
-    "vscode-languageserver": "^3.2.0"
+    "vscode-languageserver": "^3.2.0",
+    "vscode-uri": "^1.0.0"
   }
 }

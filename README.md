@@ -6,7 +6,8 @@ A vscode extension for Angular @Component.
 - Language support for inline-defined template and styles
   - Syntax highlighting
   - Code Formatting
-  - Code Completion for selectors, inputs and outputs (only under workspace mode )
+  - Code Completion
+  - Go to Definition
 
 ## Extension Settings
 
@@ -18,15 +19,17 @@ A vscode extension for Angular @Component.
 ### Function
 
 #### Code Formatting
-- Whitespace is not formatted very well.
+- Whitespace might not always be formatted perfectly.
+- Xml element starting with : is not formatted correctly.
 
 #### Syntax Highlighting
-- Wrong coloring in some cases.
+- Wrong coloring in some cases. eg. using ?. operator in {{ }}
 - No coloring in some cases.
 
 #### Code Completion
-- NgModule and Component dependency is not referred.
-- Find components by traversing ts files in disk. So unsaved modification will not be listed.
-- Incremental update is not supported.
+- NgModule and Component dependency is not considered.
+- Unsaved modification might not be listed.
+
+#### Go to Definition
 
 ## Release Notes

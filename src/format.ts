@@ -8,7 +8,7 @@ import * as utils from './vscUtils';
 
 export function registFormatCommand(context) {
     context.subscriptions.push(
-        vsc.commands.registerCommand("format.angular.component",
+        vsc.commands.registerCommand("ng.c-ext.action.formatDocument",
             async () => {
                 await vsc.commands.executeCommand("editor.action.formatDocument");
                 await formatInlineTemplate();
@@ -18,7 +18,7 @@ export function registFormatCommand(context) {
     );
 
     context.subscriptions.push(
-        vsc.commands.registerCommand("selection.format.angular.component",
+        vsc.commands.registerCommand("ng.c-ext.action.formatSelection",
             async () => {
                 let selection = vsc.window.activeTextEditor.selection;
                 let range = selection ? new vsc.Range(selection.start, selection.end) : null;
@@ -55,7 +55,8 @@ async function formatInlineTemplate(selectedRange?: vsc.Range) {
                 .filter(ln => ln.trim() !== "")
                 .map(ln => (indent + ln)
                     .replace(/\s*$/, "")
-                    .replace(/(^\s*<(?:[^<>=]|=\s*"[^"]*"|=\s*'[^']*')+>)\s*(.*?)\s*(<\/[^<>=]+>)?$/, "$1$2$3"))
+                    .replace(/(^\s*<(?:[^"'<>=]|=\s*"[^"]*"|=\s*'[^']*')+>)\s*(.*?)\s*(<\/(?:\w|\d|[-_.:])+>.*)?$/, "$1$2$3")
+                    .replace(/(<\/(?:\w|\d|[-_.:])+>)\s*(.*?)\s*$/, "$1$2"))
                 .join("\n");
             editor.replace(edit.range, indented);
         });

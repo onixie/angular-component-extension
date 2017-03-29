@@ -2,7 +2,7 @@ import * as vsc from 'vscode';
 import * as vsclc from 'vscode-languageclient';
 import * as path from 'path';
 
-export function setup(context: vsc.ExtensionContext) {
+export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
     let serverModule = context.asAbsolutePath(path.join('out', 'src', 'server.js'));
     let debugOptions = { execArgv: ["--nolazy", "--debug=6004"] };
 
@@ -19,12 +19,23 @@ export function setup(context: vsc.ExtensionContext) {
         }
     }
 
+    let client = new vsclc.LanguageClient(
+        'angular.component.extension',
+        'Language Client for Angular @Component Extension',
+        serverOptions,
+        clientOptions
+    );
+
+    registerRestartCommand(context, client);
+    context.subscriptions.push(client.start());
+    return client;
+}
+
+function registerRestartCommand(context: vsc.ExtensionContext, client: vsclc.LanguageClient) {
     context.subscriptions.push(
-        new vsclc.LanguageClient(
-            'angular.component.extension',
-            'Language Client for Angular @Component Extension',
-            serverOptions,
-            clientOptions
-        ).start()
+        vsc.commands.registerCommand("ng.c-ext.action.restartServer", async () => {
+            await client.stop();
+            context.subscriptions.push(client.start());
+        })
     );
 }
