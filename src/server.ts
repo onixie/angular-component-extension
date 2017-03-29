@@ -52,11 +52,19 @@ connection.onCompletion((params: vscls.TextDocumentPositionParams): vscls.Comple
     let [h, c, n] = getTriggerCharacter(params);
     switch (h) {
         case '<': {
+            let format = (c: CompletionCandidate) => {
+                if (c.inputs.length > 0 || c.outputs.length > 0) {
+                    return c.selector;
+                } else {
+                    return `${c.selector}></${c.selector}>`;
+                }
+            };
+
             return completion.candidates.map<vscls.CompletionItem>(c => ({
                 label: c.selector,
                 kind: vscls.CompletionItemKind.Text,
                 detail: `class ${c.class}`,
-                insertText: `${c.selector}`,
+                insertText: format(c),
                 documentation: path.relative(workspaceRoot, c.src),
                 data: { selector: c }
             }));
