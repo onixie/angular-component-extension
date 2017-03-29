@@ -28,6 +28,15 @@ export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
 
     registerRestartCommand(context, client);
     context.subscriptions.push(client.start());
+
+    client.onReady().then(_ =>
+        context.subscriptions.push(
+            vsc.languages.setLanguageConfiguration("typescript", {
+                wordPattern: /(?:\w|[_:])(?:\w|\d|[-._:])*/g
+            })
+        )
+    );
+
     return client;
 }
 
