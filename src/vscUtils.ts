@@ -61,3 +61,38 @@ function getActualRange(node: ts.Node, doc: vsc.TextDocument): vsc.Range {
     let e = text.lastIndexOf("`");
     return new vsc.Range(doc.positionAt(node.pos + s + 1), doc.positionAt(node.pos + e));
 }
+
+
+export function getTemplateRanges(document: vsc.TextDocument, selectedRange?: vsc.Range): vsc.Range[] {
+    let source = tsUtils.createSourceFile(document.fileName, document.getText());
+    let classes = tsUtils.getClasses(source.statements);
+    let components = tsUtils.findComponents(classes);
+
+    if (!components)
+        return null;
+
+    return components.map(c => {
+        let dec = tsUtils.getDecorator(c[0], 'Component');
+        let range = getComponentDecoratorTemplateRange(dec, document);
+        return range && selectedRange ? range.intersection(selectedRange) : range;
+    }).filter(range => range);
+}
+
+
+export function getStylesRanges(document: vsc.TextDocument, selectedRange?: vsc.Range): vsc.Range[][] {
+    let source = tsUtils.createSourceFile(document.fileName, document.getText());
+    let classes = tsUtils.getClasses(source.statements);
+    let components = tsUtils.findComponents(classes);
+
+    if (!components)
+        return null;
+
+    return components.map(c => {
+        let dec = tsUtils.getDecorator(c[0], 'Component');
+        let ranges = getComponentDecoratorStylesRanges(dec, document);
+        return ranges ?
+            ranges.map(r =>
+                selectedRange ? r.intersection(selectedRange) : r
+            ).filter(r => r) : null;
+    }).filter(rr => rr);
+}

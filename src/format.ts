@@ -38,7 +38,7 @@ async function formatInlineTemplate(selectedRange?: vsc.Range) {
     let tabSize = <number>editor.options.tabSize;
     let document = editor.document;
 
-    let targetRanges = getTemplateRanges(document, selectedRange);
+    let targetRanges = utils.getTemplateRanges(document, selectedRange);
     if (!targetRanges || targetRanges.length <= 0)
         return;
 
@@ -63,21 +63,6 @@ async function formatInlineTemplate(selectedRange?: vsc.Range) {
     });
 }
 
-function getTemplateRanges(document: vsc.TextDocument, selectedRange?: vsc.Range): vsc.Range[] {
-    let source = utils.createSourceFile(document.fileName, document.getText());
-    let classes = utils.getClasses(source.statements);
-    let components = utils.findComponents(classes);
-
-    if (!components)
-        return null;
-
-    return components.map(c => {
-        let dec = utils.getDecorator(c[0], 'Component');
-        let range = utils.getComponentDecoratorTemplateRange(dec, document);
-        return range && selectedRange ? range.intersection(selectedRange) : range;
-    }).filter(range => range);
-}
-
 // Styles
 class CssRangeFormattingEditProvider implements vsc.DocumentRangeFormattingEditProvider {
     provideDocumentRangeFormattingEdits(document: vsc.TextDocument, range?: vsc.Range, options?: vsc.FormattingOptions, token?: vsc.CancellationToken): vsc.TextEdit[] {
@@ -91,7 +76,7 @@ async function formatInlineStyles(selectedRange?: vsc.Range) {
     let editor = vsc.window.activeTextEditor;
     let tabSize = <number>editor.options.tabSize;
     let document = editor.document;
-    let targetRanges = getStylesRanges(document, selectedRange);
+    let targetRanges = utils.getStylesRanges(document, selectedRange);
     if (!targetRanges || targetRanges.length <= 0)
         return;
 
@@ -112,22 +97,4 @@ async function formatInlineStyles(selectedRange?: vsc.Range) {
             editor.replace(edit.range, indented);
         });
     });
-}
-
-function getStylesRanges(document: vsc.TextDocument, selectedRange?: vsc.Range): vsc.Range[][] {
-    let source = utils.createSourceFile(document.fileName, document.getText());
-    let classes = utils.getClasses(source.statements);
-    let components = utils.findComponents(classes);
-
-    if (!components)
-        return null;
-
-    return components.map(c => {
-        let dec = utils.getDecorator(c[0], 'Component');
-        let ranges = utils.getComponentDecoratorStylesRanges(dec, document);
-        return ranges ?
-            ranges.map(r =>
-                selectedRange ? r.intersection(selectedRange) : r
-            ).filter(r => r) : null;
-    }).filter(rr => rr);
 }
