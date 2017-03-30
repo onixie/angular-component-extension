@@ -26,9 +26,9 @@ export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
         serverOptions,
         clientOptions
     );
+    context.subscriptions.push(client.start());
 
     registerRestartCommand(context, client);
-    context.subscriptions.push(client.start());
 
     client.onReady().then(_ => {
         context.subscriptions.push(

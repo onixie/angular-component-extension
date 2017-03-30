@@ -30,13 +30,18 @@ connection.onInitialize((params): vscls.InitializeResult => {
     }
 });
 
-connection.listen();
-
-// On Change
-let templateRange;
-documents.onDidChangeContent((e: vscls.TextDocumentChangeEvent) => {
-
+// Try detect new components
+let disposable = documents.onDidSave((e: vscls.TextDocumentChangeEvent) => {
+    if (e.document.languageId == 'typescript') {
+        sweepTsFiles();
+    }
 });
+
+connection.onExit(() => {
+    disposable.dispose();
+});
+
+connection.listen();
 
 // Code Completion
 
@@ -209,6 +214,8 @@ function sweepTsFiles() {
         if (err) {
             return;
         }
+        let oldCount = (completion.candidates && completion.candidates.length) || 0;
+
         completion.candidates = match.map(m => {
             let src = utils.createSourceFile(m);
             let comps = utils.findComponents(utils.getClasses(src.statements));
@@ -218,7 +225,7 @@ function sweepTsFiles() {
             return comps.map(c => createCandidate(c[0], c[1], src));
         }).reduce((p, c) => p.concat(c)).filter(x => x);
 
-        if (completion.candidates.length) {
+        if (completion.candidates.length !== oldCount) {
             connection.window.showInformationMessage(
                 `Found ${completion.candidates.length} Components`
             );

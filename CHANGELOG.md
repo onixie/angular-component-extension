@@ -10,6 +10,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Code Completion for element selector, input and output
 - Go to Definition support for element selector
 - New shortcut key for language server restart
+- Support non-inline template (if language id == html)
 ### Fixed
 - Improve whitespace removal
 
