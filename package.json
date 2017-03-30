@@ -11,7 +11,8 @@
     "Languages"
   ],
   "activationEvents": [
-    "onLanguage:typescript"
+    "onLanguage:typescript",
+    "onLanguage:html"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -29,7 +30,7 @@
       {
         "command": "ng.c-ext.action.restartServer",
         "key": "ctrl+k ctrl+n",
-        "when": "editorLangId == typescript"
+        "when": "editorLangId == typescript || editorLangId == html"
       }
     ],
     "grammars": [

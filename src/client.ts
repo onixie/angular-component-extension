@@ -12,7 +12,7 @@ export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
     }
 
     let clientOptions: vsclc.LanguageClientOptions = {
-        documentSelector: ['typescript'],
+        documentSelector: ['typescript', 'html'],
         synchronize: {
             configurationSection: 'angular.component.extension',
             fileEvents: vsc.workspace.createFileSystemWatcher('**/*.ts')
