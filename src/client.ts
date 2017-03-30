@@ -31,7 +31,7 @@ export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
 
     client.onReady().then(_ =>
         context.subscriptions.push(
-            vsc.languages.setLanguageConfiguration("typescript", {
+            vsc.languages.setLanguageConfiguration("xml", {
                 wordPattern: /(?:\w|[_:])(?:\w|\d|[-._:])*/g
             })
         )

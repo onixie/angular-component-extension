@@ -35,8 +35,8 @@
     "grammars": [
       {
         "embeddedLanguages": {
-          "meta.style.css": "source.css",
-          "meta.template.property": "text.xml"
+          "meta.style.css": "css",
+          "meta.template.property": "xml"
         },
         "scopeName": "source.ts.inline-template",
         "language": "typescript",
