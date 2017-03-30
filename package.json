@@ -4,11 +4,22 @@
   "description": "An Extension for Angular @Component",
   "version": "0.0.6",
   "publisher": "onixie",
+  "homepage": "https://github.com/onixie/angular-component-extension",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/onixie/angular-component-extension.git"
+  },
+  "keywords": [
+    "Angular", "@Component", "TypeScript"
+  ],
   "engines": {
     "vscode": "^1.10.0"
   },
   "categories": [
-    "Languages"
+    "Languages",
+    "Formatters",
+    "Other"
   ],
   "activationEvents": [
     "onLanguage:typescript",
