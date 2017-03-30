@@ -30,7 +30,7 @@
       {
         "command": "ng.c-ext.action.restartServer",
         "key": "ctrl+k ctrl+n",
-        "when": "editorLangId == typescript || editorLangId == html"
+        "when": "editorLangId == typescript"
       }
     ],
     "grammars": [

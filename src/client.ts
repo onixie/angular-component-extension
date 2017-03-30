@@ -29,13 +29,18 @@ export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
     registerRestartCommand(context, client);
     context.subscriptions.push(client.start());
 
-    client.onReady().then(_ =>
+    client.onReady().then(_ => {
         context.subscriptions.push(
             vsc.languages.setLanguageConfiguration("xml", {
                 wordPattern: /(?:\w|[_:])(?:\w|\d|[-._:])*/g
             })
-        )
-    );
+        );
+        context.subscriptions.push(
+            vsc.languages.setLanguageConfiguration("html", {
+                wordPattern: /(?:\w|[_:])(?:\w|\d|[-._:])*/g
+            })
+        );
+    });
 
     return client;
 }
