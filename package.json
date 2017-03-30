@@ -18,17 +18,17 @@
   "contributes": {
     "keybindings": [
       {
-        "command": "ng.c-ext.action.formatDocument",
+        "command": "ng-c-ext.action.formatDocument",
         "key": "shift+alt+f",
         "when": "editorLangId == typescript"
       },
       {
-        "command": "ng.c-ext.action.formatSelection",
+        "command": "ng-c-ext.action.formatSelection",
         "key": "ctrl+k ctrl+f",
         "when": "editorLangId == typescript"
       },
       {
-        "command": "ng.c-ext.action.restartServer",
+        "command": "ng-c-ext.action.restartServer",
         "key": "ctrl+k ctrl+n",
         "when": "editorLangId == typescript"
       }
@@ -43,7 +43,33 @@
         "language": "typescript",
         "path": "./syntaxes/inline-template.tmLanguage.json"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Angular @Component Extension Configuration",
+      "type": "object",
+      "properties": {
+        "ng-c-ext.disableInlineTemplateFormat": {
+          "description": "Disable format for in-line template",
+          "type": "boolean",
+          "default": false
+        },
+        "ng-c-ext.disableInlineStylesFormat":{
+          "description": "Disable format for in-line styles",
+          "type": "boolean",
+          "default": false
+        },
+        "ng-c-ext.disableInlineIndent": {
+          "description": "Disable indentation along in-line formatting",
+          "type": "boolean",
+          "default": false
+        },
+        "ng-c-ext.shutupMode": {
+          "description": "Disable info message for new components detection in current workspace",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "tsc -p ./",

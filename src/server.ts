@@ -2,12 +2,13 @@
 
 import * as vscode from 'vscode';
 import * as vscls from 'vscode-languageserver';
-import * as utils from './tsUtils';
+import uri from 'vscode-uri';
 import * as glob from 'glob';
 import * as ts from 'typescript';
 import * as fs from 'fs';
 import * as path from 'path';
-import uri from 'vscode-uri';
+import * as config from './config';
+import * as utils from './tsUtils';
 
 let connection: vscls.IConnection = vscls.createConnection(new vscls.IPCMessageReader(process), new vscls.IPCMessageWriter(process));
 
@@ -35,6 +36,11 @@ let disposable = documents.onDidSave((e: vscls.TextDocumentChangeEvent) => {
     if (e.document.languageId == 'typescript') {
         sweepTsFiles();
     }
+});
+
+let settings: config.Settings = { "ng-c-ext": {} };
+connection.onDidChangeConfiguration((params: vscls.DidChangeConfigurationParams) => {
+    settings = params.settings;
 });
 
 connection.onExit(() => {
@@ -65,7 +71,7 @@ let completion: Completion = { candidates: null };
 connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
     let inRange = await connection.sendRequest("template/inRange", params.position);
     if (!inRange) {
-        return null;
+        return [];
     }
 
     if (!completion.candidates) {
@@ -182,7 +188,7 @@ connection.onCompletionResolve((item: vscls.CompletionItem): vscls.CompletionIte
 connection.onDefinition(async (params: vscls.TextDocumentPositionParams) => {
     let inRange = await connection.sendRequest("template/inRange", params.position);
     if (!inRange) {
-        return null;
+        return [];
     }
 
     if (completion.candidates) {
@@ -224,6 +230,9 @@ function sweepTsFiles() {
             }
             return comps.map(c => createCandidate(c[0], c[1], src));
         }).reduce((p, c) => p.concat(c)).filter(x => x);
+
+        if (settings["ng-c-ext"].shutupMode)
+            return;
 
         if (completion.candidates.length !== oldCount) {
             connection.window.showInformationMessage(

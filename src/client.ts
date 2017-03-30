@@ -15,13 +15,13 @@ export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
     let clientOptions: vsclc.LanguageClientOptions = {
         documentSelector: ['typescript', 'html'],
         synchronize: {
-            configurationSection: 'angular.component.extension',
+            configurationSection: 'ng-c-ext',
             fileEvents: vsc.workspace.createFileSystemWatcher('**/*.ts')
         }
     }
 
     let client = new vsclc.LanguageClient(
-        'angular.component.extension',
+        'ng-c-ext',
         'Language Client for Angular @Component Extension',
         serverOptions,
         clientOptions
@@ -62,7 +62,7 @@ export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
 
 function registerRestartCommand(context: vsc.ExtensionContext, client: vsclc.LanguageClient) {
     context.subscriptions.push(
-        vsc.commands.registerCommand("ng.c-ext.action.restartServer", async () => {
+        vsc.commands.registerCommand("ng-c-ext.action.restartServer", async () => {
             await client.stop();
             context.subscriptions.push(client.start());
         })

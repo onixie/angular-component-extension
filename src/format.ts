@@ -8,23 +8,34 @@ import * as utils from './vscUtils';
 
 export function registFormatCommand(context) {
     context.subscriptions.push(
-        vsc.commands.registerCommand("ng.c-ext.action.formatDocument",
+        vsc.commands.registerCommand("ng-c-ext.action.formatDocument",
             async () => {
                 await vsc.commands.executeCommand("editor.action.formatDocument");
-                await formatInlineTemplate();
-                await formatInlineStyles();
+
+                if (!vsc.workspace.getConfiguration("ng-c-ext").get<boolean>("disableInlineTemplateFormat")) {
+                    await formatInlineTemplate();
+                }
+
+                if (!vsc.workspace.getConfiguration("ng-c-ext").get<boolean>("disableInlineStylesFormat")) {
+                    await formatInlineStyles();
+                }
             }
         )
     );
-
     context.subscriptions.push(
-        vsc.commands.registerCommand("ng.c-ext.action.formatSelection",
+        vsc.commands.registerCommand("ng-c-ext.action.formatSelection",
             async () => {
                 let selection = vsc.window.activeTextEditor.selection;
                 let range = selection ? new vsc.Range(selection.start, selection.end) : null;
                 await vsc.commands.executeCommand("editor.action.formatSelection");
-                await formatInlineTemplate(range);
-                await formatInlineStyles(range);
+
+                if (!vsc.workspace.getConfiguration("ng-c-ext").get<boolean>("disableInlineTemplateFormat")) {
+                    await formatInlineTemplate(range);
+                }
+
+                if (!vsc.workspace.getConfiguration("ng-c-ext").get<boolean>("disableInlineStylesFormat")) {
+                    await formatInlineStyles(range);
+                }
             }
         )
     );
@@ -47,9 +58,11 @@ async function formatInlineTemplate(selectedRange?: vsc.Range) {
         formatter.provideDocumentRangeFormattingEdits(document, r, format)[0]
     );
 
+    let indent = vsc.workspace.getConfiguration("ng-c-ext").get<boolean>("disableInlineIndent")
+        ? "" : " ".repeat(tabSize * 2);
+
     await editor.edit(editor => {
         edits.forEach(edit => {
-            let indent = " ".repeat(tabSize * 2);
             let indented = "\n" + edit.newText
                 .split("\n")
                 .filter(ln => ln.trim() !== "")
@@ -86,9 +99,11 @@ async function formatInlineStyles(selectedRange?: vsc.Range) {
         r => formatter.provideDocumentRangeFormattingEdits(document, r)[0]
     );
 
+    let indent = vsc.workspace.getConfiguration("ng-c-ext").get<boolean>("disableInlineIndent")
+        ? "" : " ".repeat(tabSize * 2);
+
     await editor.edit(editor => {
         edits.forEach(edit => {
-            let indent = " ".repeat(tabSize * 2);
             let indented = "\n" + edit.newText
                 .split("\n")
                 .filter(ln => ln.trim() !== "")
