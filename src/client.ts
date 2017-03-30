@@ -1,6 +1,7 @@
 import * as vsc from 'vscode';
 import * as vsclc from 'vscode-languageclient';
 import * as path from 'path';
+import * as utils from './vscUtils';
 
 export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
     let serverModule = context.asAbsolutePath(path.join('out', 'src', 'server.js'));
@@ -40,6 +41,20 @@ export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
                 wordPattern: /(?:\w|[_:])(?:\w|\d|[-._:])*/g
             })
         );
+
+        client.onRequest("template/inRange", (pos: vsclc.Position) => {
+            let doc = vsc.window.activeTextEditor.document;
+            if (doc.languageId == 'html') {
+                return true;
+            }
+
+            let ranges = utils.getTemplateRanges(doc);
+            if (ranges) {
+                let _pos: vsc.Position = new vsc.Position(pos.line, pos.character);
+                return ranges.some(r => r.contains(_pos));
+            }
+            return false;
+        });
     });
 
     return client;

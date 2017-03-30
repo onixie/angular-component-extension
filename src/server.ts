@@ -32,6 +32,12 @@ connection.onInitialize((params): vscls.InitializeResult => {
 
 connection.listen();
 
+// On Change
+let templateRange;
+documents.onDidChangeContent((e: vscls.TextDocumentChangeEvent) => {
+
+});
+
 // Code Completion
 
 const XmlNameParts = /^(?:\w|\d|[-._:])+/;
@@ -51,7 +57,12 @@ interface Completion {
 }
 
 let completion: Completion = { candidates: null };
-connection.onCompletion((params: vscls.TextDocumentPositionParams): vscls.CompletionItem[] | vscls.CompletionList => {
+connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
+    let inRange = await connection.sendRequest("template/inRange", params.position);
+    if (!inRange) {
+        return null;
+    }
+
     if (!completion.candidates) {
         return vscls.CompletionList.create();
     }
@@ -163,7 +174,12 @@ connection.onCompletionResolve((item: vscls.CompletionItem): vscls.CompletionIte
 })
 
 // Go to Definition
-connection.onDefinition((params: vscls.TextDocumentPositionParams): vscls.Location | vscls.Location[] => {
+connection.onDefinition(async (params: vscls.TextDocumentPositionParams) => {
+    let inRange = await connection.sendRequest("template/inRange", params.position);
+    if (!inRange) {
+        return null;
+    }
+
     if (completion.candidates) {
         let doc = documents.get(params.textDocument.uri);
         let text = doc.getText();
