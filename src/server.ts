@@ -219,7 +219,7 @@ function createCandidate(decl: ts.ClassDeclaration, dec: ts.Decorator, src: ts.S
         src: src.fileName
     };
 
-    if (cand.selector.match(XmlNameExact)) {
+    if (cand.selector && cand.selector.match(XmlNameExact)) {
         return cand;
     }
     return null;
