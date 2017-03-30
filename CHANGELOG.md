@@ -11,6 +11,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Go to Definition support for element selector
 - New shortcut key for language server restart
 - Support non-inline template (if language id == html)
+- New configuration section for altering this extension
 ### Fixed
 - Improve whitespace removal
 
