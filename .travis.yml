@@ -30,3 +30,4 @@ deploy:
   script: vsce publish -p $TRAVIS_PAT
   on:
     branch: master
+    condition: $TRAVIS_OS_NAME = linux

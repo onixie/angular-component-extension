@@ -11,7 +11,7 @@
     "url": "https://github.com/onixie/angular-component-extension.git"
   },
   "keywords": [
-    "Angular", "@Component", "TypeScript"
+    "Angular", "Component", "TypeScript"
   ],
   "engines": {
     "vscode": "^1.10.0"
