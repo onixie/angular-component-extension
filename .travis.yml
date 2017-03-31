@@ -25,6 +25,7 @@ script:
   - npm test --silent
 
 deploy:
+  skip_cleanup: true
   provider: script
   script: vsce publish -p $TRAVIS_PAT
   on:
