@@ -4,16 +4,22 @@ os:
   - osx
   - linux
 
+language: node_js
+node_js:
+  - "6"
+
 before_install:
   - if [ $TRAVIS_OS_NAME == "linux" ]; then
       export CXX="g++-4.9" CC="gcc-4.9" DISPLAY=:99.0;
       sh -e /etc/init.d/xvfb start;
       sleep 3;
     fi
+  - npm install -g vsce
 
 install:
   - npm install
   - npm run vscode:prepublish
-
+  - vsce package
+  
 script:
   - npm test --silent
