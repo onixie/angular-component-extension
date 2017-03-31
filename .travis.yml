@@ -20,6 +20,12 @@ install:
   - npm install
   - npm run vscode:prepublish
   - vsce package
-  
+
 script:
   - npm test --silent
+
+deploy:
+  provider: script
+  script: vsce publish -p $TRAVIS_PAT
+  on:
+    branch: master
