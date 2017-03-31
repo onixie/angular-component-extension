@@ -1,5 +1,7 @@
 # Angular @Component Extension
 
+[![Build Status](https://travis-ci.org/onixie/angular-component-extension.svg?branch=master)](https://travis-ci.org/onixie/angular-component-extension)
+
 A vscode extension for Angular @Component.
 
 ## Features

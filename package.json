@@ -88,6 +88,7 @@
     "postinstall": "node ./node_modules/vscode/bin/install",
     "test": "node ./node_modules/vscode/bin/test"
   },
+  "test": "node ./node_modules/vscode/bin/test",
   "devDependencies": {
     "@types/js-beautify": "0.0.28",
     "@types/mocha": "^2.2.32",
