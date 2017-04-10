@@ -5,6 +5,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [v0.0.7]
+### Added
+- Demo.gif for README.md
+
 ## [v0.0.6]
 ### Added
 - Code Completion for element selector, input and output
