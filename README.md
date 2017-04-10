@@ -4,6 +4,8 @@
 
 A vscode extension for Angular @Component.
 
+![demo](./demo.gif "demo")
+
 ## Features
 - Language support for inline-defined template and styles
   - Syntax highlighting
