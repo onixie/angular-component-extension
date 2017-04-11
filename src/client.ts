@@ -13,7 +13,7 @@ export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
     }
 
     let clientOptions: vsclc.LanguageClientOptions = {
-        documentSelector: ['typescript', 'html'],
+        documentSelector: ['typescript', 'html', 'razor'],
         synchronize: {
             configurationSection: 'ng-c-ext',
             fileEvents: vsc.workspace.createFileSystemWatcher('**/*.ts')
@@ -41,10 +41,14 @@ export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
                 wordPattern: /(?:\w|[_:])(?:\w|\d|[-._:])*/g
             })
         );
-
+        context.subscriptions.push(
+            vsc.languages.setLanguageConfiguration("razor", {
+                wordPattern: /(?:\w|[_:])(?:\w|\d|[-._:])*/g
+            })
+        );
         client.onRequest("template/inRange", (pos: vsclc.Position) => {
             let doc = vsc.window.activeTextEditor.document;
-            if (doc.languageId == 'html') {
+            if (doc.languageId == 'html' || doc.languageId == 'razor') {
                 return true;
             }
 
