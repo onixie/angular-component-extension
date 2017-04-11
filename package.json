@@ -23,7 +23,8 @@
   ],
   "activationEvents": [
     "onLanguage:typescript",
-    "onLanguage:html"
+    "onLanguage:html",
+    "onLanguage:razor"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -36,11 +37,6 @@
       {
         "command": "ng-c-ext.action.formatSelection",
         "key": "ctrl+k ctrl+f",
-        "when": "editorLangId == typescript"
-      },
-      {
-        "command": "ng-c-ext.action.restartServer",
-        "key": "ctrl+k ctrl+n",
         "when": "editorLangId == typescript"
       }
     ],

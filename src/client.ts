@@ -28,28 +28,33 @@ export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
     );
     context.subscriptions.push(client.start());
 
-    registerRestartCommand(context, client);
+    let lcTxml: boolean = false,
+        lcHtml: boolean = false,
+        lcRazr: boolean = false;
 
     client.onReady().then(_ => {
-        context.subscriptions.push(
-            vsc.languages.setLanguageConfiguration("xml", {
-                wordPattern: /(?:\w|[_:])(?:\w|\d|[-._:])*/g
-            })
-        );
-        context.subscriptions.push(
-            vsc.languages.setLanguageConfiguration("html", {
-                wordPattern: /(?:\w|[_:])(?:\w|\d|[-._:])*/g
-            })
-        );
-        context.subscriptions.push(
-            vsc.languages.setLanguageConfiguration("razor", {
-                wordPattern: /(?:\w|[_:])(?:\w|\d|[-._:])*/g
-            })
-        );
         client.onRequest("template/inRange", (pos: vsclc.Position) => {
             let doc = vsc.window.activeTextEditor.document;
             if (doc.languageId == 'html' || doc.languageId == 'razor') {
+                if (!lcRazr || !lcHtml) {
+                    context.subscriptions.push(
+                        vsc.languages.setLanguageConfiguration(doc.languageId, {
+                            wordPattern: /(?:\w|[_:])(?:\w|\d|[-._:])*/g
+                        })
+                    );
+                    lcRazr = doc.languageId == "razor";
+                    lcHtml = doc.languageId == "html";
+                }
                 return true;
+            }
+
+            if (!lcTxml) {
+                context.subscriptions.push(
+                    vsc.languages.setLanguageConfiguration("xml", {
+                        wordPattern: /(?:\w|[_:])(?:\w|\d|[-._:])*/g
+                    })
+                );
+                lcTxml = true;
             }
 
             let ranges = utils.getTemplateRanges(doc);
@@ -62,13 +67,4 @@ export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
     });
 
     return client;
-}
-
-function registerRestartCommand(context: vsc.ExtensionContext, client: vsclc.LanguageClient) {
-    context.subscriptions.push(
-        vsc.commands.registerCommand("ng-c-ext.action.restartServer", async () => {
-            await client.stop();
-            context.subscriptions.push(client.start());
-        })
-    );
 }
