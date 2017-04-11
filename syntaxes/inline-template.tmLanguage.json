@@ -40,6 +40,10 @@
 					"end": "\\}\\}",
 					"patterns": [
 						{
+							"match": "\\?\\.",
+							"name": "keyword.operator.ng"
+						},
+						{
 							"include": "source.js"
 						}
 					]

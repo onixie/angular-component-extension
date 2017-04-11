@@ -27,7 +27,6 @@ A vscode extension for Angular @Component.
 - Xml element starting with : is not formatted correctly.
 
 #### Syntax Highlighting
-- Wrong coloring in some cases. eg. using ?. operator in {{ }}
 - No coloring in some cases.
 
 #### Code Completion
