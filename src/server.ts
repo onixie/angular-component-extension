@@ -78,7 +78,7 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
         return vscls.CompletionList.create();
     }
     let extra = "";
-    let [h, c, n] = getTriggerCharacter(params);
+    let [p, h, c, n] = getTriggerCharacter(params);
     switch (h) {
         case '<': {
             let format = (c: CompletionCandidate) => {
@@ -150,27 +150,53 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
                 return null;
             }
             let text = fs.readFileSync(cand.src, "utf-8");
-
-            return cand.outputs.map<vscls.CompletionItem>(o => ({
-                label: utils.getBindingName(o),
-                kind: vscls.CompletionItemKind.Text,
-                textEdit: {
-                    newText: `${utils.getBindingName(o)})=""`,
-                    range: vscls.Range.create(
-                        params.position.line,
-                        params.position.character,
-                        params.position.line,
-                        params.position.character + (c == ")" ? 1 : 0)
+            if (p != "[") {
+                return cand.outputs.map<vscls.CompletionItem>(o => ({
+                    label: utils.getBindingName(o),
+                    kind: vscls.CompletionItemKind.Text,
+                    textEdit: {
+                        newText: `${utils.getBindingName(o)})=""`,
+                        range: vscls.Range.create(
+                            params.position.line,
+                            params.position.character,
+                            params.position.line,
+                            params.position.character + (c == ")" ? 1 : 0)
+                        )
+                    },
+                    detail: `()=${cand.class}`,
+                    documentation: text.substring(o.pos, o.end),
+                    command: {
+                        command: "cursorLeft",
+                        title: "cursorLeft"
+                    },
+                    data: { output: o, src: cand.src }
+                }));
+            } else {
+                return cand.inputs.filter(
+                    i => cand.outputs.find(
+                        o => utils.getBindingName(o) == utils.getBindingName(i) + "Change"
                     )
-                },
-                detail: `()=${cand.class}`,
-                documentation: text.substring(o.pos, o.end),
-                command: {
-                    command: "cursorLeft",
-                    title: "cursorLeft"
-                },
-                data: { output: o, src: cand.src }
-            }));
+                ).map(i => ({
+                    label: utils.getBindingName(i),
+                    kind: vscls.CompletionItemKind.Text,
+                    textEdit: {
+                        newText: `${utils.getBindingName(i)})]=""`,
+                        range: vscls.Range.create(
+                            params.position.line,
+                            params.position.character,
+                            params.position.line,
+                            params.position.character + (c == ")" ? 1 : 0) + (n == "]" ? 1 : 0)
+                        )
+                    },
+                    detail: `[()]=${cand.class}`,
+                    documentation: text.substring(i.pos, i.end),
+                    command: {
+                        command: "cursorLeft",
+                        title: "cursorLeft"
+                    },
+                    data: { input: i, src: cand.src }
+                }));
+            }
         }
     }
     return [];
@@ -261,6 +287,7 @@ function getTriggerCharacter(pos: vscls.TextDocumentPositionParams): string[] {
     let doc = documents.get(pos.textDocument.uri);
     let text = doc.getText();
     return [
+        text.charAt(doc.offsetAt(pos.position) - 2),
         text.charAt(doc.offsetAt(pos.position) - 1),
         text.charAt(doc.offsetAt(pos.position)),
         text.charAt(doc.offsetAt(pos.position) + 1),
