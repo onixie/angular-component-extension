@@ -4,6 +4,13 @@ All notable changes to the "angular-component-extension" extension will be docum
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
+### Fixed
+- Syntax highlighting disruption caused by ?.
+### Added
+- Support cshtml files (razor language mode)
+- Code completion for 2-way data binding
+### Removed
+- Broken command to reset language server
 
 ## [v0.0.7]
 ### Added
