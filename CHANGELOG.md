@@ -5,6 +5,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [v0.0.9]
+### Fixed
+- Server error when target file contains no statements.
+
 ## [v0.0.8]
 ### Fixed
 - Syntax highlighting disruption caused by ?.

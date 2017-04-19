@@ -252,7 +252,7 @@ function sweepTsFiles() {
             let src = utils.createSourceFile(m);
             let comps = utils.findComponents(utils.getClasses(src.statements));
             if (!comps) {
-                return null;
+                return [];
             }
             return comps.map(c => createCandidate(c[0], c[1], src));
         }).reduce((p, c) => p.concat(c)).filter(x => x);
