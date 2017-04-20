@@ -5,6 +5,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [v0.0.11]
+### Change
+- Make completion candidates stick to top
+
 ## [v0.0.10]
 ### Fix
 - Use valid element name as wordPattern in html/razor/xml

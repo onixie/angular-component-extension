@@ -91,11 +91,12 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
 
             return completion.candidates.map<vscls.CompletionItem>(c => ({
                 label: c.selector,
-                kind: vscls.CompletionItemKind.Text,
+                kind: vscls.CompletionItemKind.Class,
                 detail: `class ${c.class}`,
                 insertText: format(c),
                 documentation: path.relative(workspaceRoot, c.src),
-                data: { selector: c }
+                data: { selector: c },
+                sortText: "\u0000",
             }));
         }
         case '>':
@@ -107,11 +108,12 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
                 return [
                     {
                         label: c.selector,
-                        kind: vscls.CompletionItemKind.Text,
+                        kind: vscls.CompletionItemKind.Class,
                         detail: `class ${c.class}`,
                         documentation: path.relative(workspaceRoot, c.src),
                         insertText: `${extra}${c.selector}>`,
-                        data: {}
+                        data: {},
+                        sortText: "\u0000"
                     }
                 ];
             }
@@ -124,13 +126,13 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
             let text = fs.readFileSync(cand.src, "utf-8");
 
             return cand.inputs.map<vscls.CompletionItem>(i => ({
-                label: utils.getBindingName(i),
-                kind: vscls.CompletionItemKind.Text,
+                label: `[${utils.getBindingName(i)}]`,
+                kind: vscls.CompletionItemKind.Property,
                 textEdit: {
-                    newText: `${utils.getBindingName(i)}]=""`,
+                    newText: `[${utils.getBindingName(i)}]=""`,
                     range: vscls.Range.create(
                         params.position.line,
-                        params.position.character,
+                        params.position.character - 1,
                         params.position.line,
                         params.position.character + (c == "]" ? 1 : 0)
                     )
@@ -141,7 +143,8 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
                     command: "cursorLeft",
                     title: "cursorLeft"
                 },
-                data: { input: i, src: cand.src }
+                data: { input: i, src: cand.src },
+                sortText: "\u0000"
             }));
         }
         case '(': {
@@ -152,13 +155,13 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
             let text = fs.readFileSync(cand.src, "utf-8");
             if (p != "[") {
                 return cand.outputs.map<vscls.CompletionItem>(o => ({
-                    label: utils.getBindingName(o),
-                    kind: vscls.CompletionItemKind.Text,
+                    label: `(${utils.getBindingName(o)})`,
+                    kind: vscls.CompletionItemKind.Property,
                     textEdit: {
-                        newText: `${utils.getBindingName(o)})=""`,
+                        newText: `(${utils.getBindingName(o)})=""`,
                         range: vscls.Range.create(
                             params.position.line,
-                            params.position.character,
+                            params.position.character - 1,
                             params.position.line,
                             params.position.character + (c == ")" ? 1 : 0)
                         )
@@ -169,7 +172,8 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
                         command: "cursorLeft",
                         title: "cursorLeft"
                     },
-                    data: { output: o, src: cand.src }
+                    data: { output: o, src: cand.src },
+                    sortText: "\u0000"
                 }));
             } else {
                 return cand.inputs.filter(
@@ -177,13 +181,13 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
                         o => utils.getBindingName(o) == utils.getBindingName(i) + "Change"
                     )
                 ).map(i => ({
-                    label: utils.getBindingName(i),
-                    kind: vscls.CompletionItemKind.Text,
+                    label: `[(${utils.getBindingName(i)})]`,
+                    kind: vscls.CompletionItemKind.Property,
                     textEdit: {
-                        newText: `${utils.getBindingName(i)})]=""`,
+                        newText: `[(${utils.getBindingName(i)})]=""`,
                         range: vscls.Range.create(
                             params.position.line,
-                            params.position.character,
+                            params.position.character - 2,
                             params.position.line,
                             params.position.character + (c == ")" ? 1 : 0) + (n == "]" ? 1 : 0)
                         )
@@ -194,7 +198,8 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
                         command: "cursorLeft",
                         title: "cursorLeft"
                     },
-                    data: { input: i, src: cand.src }
+                    data: { input: i, src: cand.src },
+                    sortText: "\u0000"
                 }));
             }
         }
