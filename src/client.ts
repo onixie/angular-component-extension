@@ -3,6 +3,8 @@ import * as vsclc from 'vscode-languageclient';
 import * as path from 'path';
 import * as utils from './vscUtils';
 
+let selPat = /\w(\w|\d|[-_\\])*/g
+
 export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
     let serverModule = context.asAbsolutePath(path.join('out', 'src', 'server.js'));
     let debugOptions = { execArgv: ["--nolazy", "--debug=6004"] };
@@ -39,7 +41,7 @@ export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
                 if (!lcRazr || !lcHtml) {
                     context.subscriptions.push(
                         vsc.languages.setLanguageConfiguration(doc.languageId, {
-                            wordPattern: /(?:\w|[_:])(?:\w|\d|[-._:])*/g
+                            wordPattern: selPat
                         })
                     );
                     lcRazr = doc.languageId == "razor";
@@ -51,7 +53,7 @@ export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
             if (!lcTxml) {
                 context.subscriptions.push(
                     vsc.languages.setLanguageConfiguration("xml", {
-                        wordPattern: /(?:\w|[_:])(?:\w|\d|[-._:])*/g
+                        wordPattern: selPat
                     })
                 );
                 lcTxml = true;

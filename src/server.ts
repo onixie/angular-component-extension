@@ -212,6 +212,10 @@ connection.onCompletionResolve((item: vscls.CompletionItem): vscls.CompletionIte
 
 // Go to Definition
 connection.onDefinition(async (params: vscls.TextDocumentPositionParams) => {
+    if (settings["ng-c-ext"].disableGotoDefinition) {
+        return [];
+    }
+    
     let inRange = await connection.sendRequest("template/inRange", params.position);
     if (!inRange) {
         return [];

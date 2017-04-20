@@ -70,6 +70,11 @@
           "type": "boolean",
           "default": false
         },
+        "ng-c-ext.disableGotoDefinition": {
+          "description": "Disable Go to Definition",
+          "type": "boolean",
+          "default": false
+        },
         "ng-c-ext.shutupMode": {
           "description": "Disable info message for new components detection in current workspace",
           "type": "boolean",
