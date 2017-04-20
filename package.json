@@ -2,7 +2,7 @@
   "name": "angular-component-extension",
   "displayName": "Angular Component Extension",
   "description": "An Extension for Angular @Component",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "publisher": "onixie",
   "homepage": "https://github.com/onixie/angular-component-extension",
   "icon": "icon.png",

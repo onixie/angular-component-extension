@@ -4,6 +4,8 @@ All notable changes to the "angular-component-extension" extension will be docum
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
+
+## [v0.0.10]
 ### Fix
 - Use valid element name as wordPattern in html/razor/xml
 ### Add
