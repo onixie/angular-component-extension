@@ -4,6 +4,8 @@ All notable changes to the "angular-component-extension" extension will be docum
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
+
+## [v0.0.12]
 ### Add
 - Pipe support #2
 - Configuration `ng-c-ext.ngcignore` for excluding directories, such as node_modules.
