@@ -29,5 +29,5 @@ deploy:
   provider: script
   script: vsce publish -p $TRAVIS_PAT
   on:
-    branch: master
+    branch: release
     condition: $TRAVIS_OS_NAME = linux
