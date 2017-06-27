@@ -6,6 +6,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [Unreleased]
 ### Add
 - Pipe support #2
+- Configuration `ng-c-ext.ngcignore` for excluding directories, such as node_modules.
 ### Change
 - Change travis to run on release branch
 

@@ -18,7 +18,6 @@ documents.listen(connection);
 let workspaceRoot: string;
 connection.onInitialize((params): vscls.InitializeResult => {
     workspaceRoot = params.rootPath;
-    sweepTsFiles();
     return {
         capabilities: {
             textDocumentSync: documents.syncKind,
@@ -31,16 +30,18 @@ connection.onInitialize((params): vscls.InitializeResult => {
     }
 });
 
+let settings: config.Settings = { "ng-c-ext": {} };
 // Try detect new components
 let disposable = documents.onDidSave((e: vscls.TextDocumentChangeEvent) => {
     if (e.document.languageId == 'typescript') {
-        sweepTsFiles();
+        sweepTsFiles(settings);
     }
 });
-
-let settings: config.Settings = { "ng-c-ext": {} };
-connection.onDidChangeConfiguration((params: vscls.DidChangeConfigurationParams) => {
-    settings = params.settings;
+connection.onDidChangeConfiguration(({settings : newSettings}: vscls.DidChangeConfigurationParams) => {
+    if (settings["ng-c-ext"].ngcignore != newSettings["ng-c-ext"].ngcignore) {
+        sweepTsFiles(newSettings);
+    }
+    settings = newSettings;
 });
 
 connection.onExit(() => {
@@ -301,8 +302,8 @@ connection.onDefinition(async (params: vscls.TextDocumentPositionParams) => {
 });
 
 // Internal
-function sweepTsFiles() {
-    glob(`${workspaceRoot}/**/*.ts`, (err, match) => {
+function sweepTsFiles(settings : config.Settings) {
+    glob(`${workspaceRoot}/**/*.ts`, { ignore: settings["ng-c-ext"].ngcignore }, (err, match) => {
         if (err) {
             return;
         }

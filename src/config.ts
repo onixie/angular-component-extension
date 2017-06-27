@@ -4,6 +4,7 @@ export interface Settings {
         disableInlineStylesFormat?: boolean,
         disableInlineIndent?: boolean,
         disableGotoDefinition?: boolean,
-        shutupMode?: boolean
+        shutupMode?: boolean,
+        ngcignore?: string[],
     }
 }

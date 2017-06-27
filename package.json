@@ -79,6 +79,11 @@
           "description": "Disable info message for new components detection in current workspace",
           "type": "boolean",
           "default": false
+        },
+        "ng-c-ext.ngcignore": {
+          "description": "Exclude files and directories to look for according to glob patterns",
+          "type": "array",
+          "default": ["**/node_modules/**"]
         }
       }
     }
