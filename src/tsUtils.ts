@@ -31,6 +31,18 @@ export function findComponents(decls: ts.ClassDeclaration[]): [ts.ClassDeclarati
         .filter(n => !!n[1]) : null;
 }
 
+export function findPipes(decls: ts.ClassDeclaration[]): [ts.ClassDeclaration, ts.Decorator][] {
+    return decls ? decls
+        .map<[ts.ClassDeclaration, ts.Decorator]>(d => [d, getDecorator(d, 'Pipe')])
+        .filter(n => !!n[1]) : null;
+}
+
+export function findComponentsAndPipes(decls: ts.ClassDeclaration[]): [ts.ClassDeclaration, ts.Decorator][] {
+    return decls ? decls
+        .map<[ts.ClassDeclaration, ts.Decorator]>(d => [d, getDecorator(d, 'Component', 'Pipe')])
+        .filter(n => !!n[1]) : null;
+}
+
 export function getDecorator(decl: ts.ClassDeclaration | ts.ClassElement, ...crit: string[]): ts.Decorator {
     if (!decl.decorators)
         return null;
@@ -88,4 +100,32 @@ export function getBindingName(prop: ts.ClassElement): string {
     }
 
     return propName;
+}
+
+export function getPipeName(dec: ts.Decorator): string {
+    let callExp = <ts.CallExpression>dec.expression;
+    let callee = <ts.ObjectLiteralExpression>callExp.arguments[0];
+    if (callee) {
+        let name = <ts.PropertyAssignment>callee.properties.find(p =>
+            (<ts.Identifier>p.name).text === 'name'
+        );
+        if (name) {
+            return (<ts.LiteralExpression>name.initializer).text;
+        }
+    }
+    return null;
+}
+
+export function getPipePureness(dec: ts.Decorator): string {
+    let callExp = <ts.CallExpression>dec.expression;
+    let callee = <ts.ObjectLiteralExpression>callExp.arguments[0];
+    if (callee) {
+        let name = <ts.PropertyAssignment>callee.properties.find(p =>
+            (<ts.Identifier>p.name).text === 'name'
+        );
+        if (name) {
+            return (<ts.LiteralExpression>name.initializer).text;
+        }
+    }
+    return null;
 }

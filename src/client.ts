@@ -35,9 +35,10 @@ export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
         lcRazr: boolean = false;
 
     client.onReady().then(_ => {
-        client.onRequest("template/inRange", (pos: vsclc.Position) => {
+        client.onRequest("template/inRange", (pos: vsclc.Position, isAtBar: boolean) => {
             let doc = vsc.window.activeTextEditor.document;
-            if (doc.languageId == 'html' || doc.languageId == 'razor') {
+            if (doc.languageId == 'html' || doc.languageId == 'razor'
+                || (isAtBar && (doc.languageId == 'typescript' || doc.languageId == 'javascript'))) /* TODO */ {
                 if (!lcRazr || !lcHtml) {
                     context.subscriptions.push(
                         vsc.languages.setLanguageConfiguration(doc.languageId, {

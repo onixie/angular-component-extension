@@ -24,7 +24,7 @@ connection.onInitialize((params): vscls.InitializeResult => {
             textDocumentSync: documents.syncKind,
             completionProvider: {
                 resolveProvider: true,
-                triggerCharacters: ['<', '[', '(', '/', '>']
+                triggerCharacters: ['<', '[', '(', '/', '>', '|']
             },
             definitionProvider: true
         }
@@ -53,35 +53,56 @@ connection.listen();
 
 const XmlNameParts = /^(?:\w|\d|[-._:])+/;
 const XmlNameExact = /^(?:\w|[_:])(?:\w|\d|[-._:])*$/;
+const PipeNameParts = /^(?:\w|\d)+/;
+
+enum CandidateType {
+    Component, Pipe
+};
 
 interface CompletionCandidate {
+    type: CandidateType;
     class: string;
-    selector: string;
-    inputs: ts.ClassElement[];
-    outputs: ts.ClassElement[];
     src: string;
 }
 
-interface Completion {
-    candidates: CompletionCandidate[];
-    current?: CompletionCandidate
+interface ComponentCompletionCandidate extends CompletionCandidate {
+    selector: string;
+    inputs: ts.ClassElement[];
+    outputs: ts.ClassElement[];
 }
 
-let completion: Completion = { candidates: null };
+interface PipeCompletionCandidate extends CompletionCandidate {
+    name: string;
+    pure: string;
+}
+
+interface Completion {
+    candidates: {
+        components: ComponentCompletionCandidate[],
+        pipes: PipeCompletionCandidate[]
+    };
+    current?: ComponentCompletionCandidate
+}
+
+let completion: Completion = { candidates: { components: null, pipes: null } };
 connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
     let inRange = await connection.sendRequest("template/inRange", params.position);
     if (!inRange) {
         return [];
     }
 
-    if (!completion.candidates) {
-        return vscls.CompletionList.create();
-    }
     let extra = "";
     let [p, h, c, n] = getTriggerCharacter(params);
+
+    if (!completion.candidates.components && ['<', '[', '(', '/', '>'].some(sc => sc == h)) {
+        return vscls.CompletionList.create();
+    } else if (!completion.candidates.pipes && ['|'].some(sc => sc == h)) {
+        return vscls.CompletionList.create();
+    }
+
     switch (h) {
         case '<': {
-            let format = (c: CompletionCandidate) => {
+            let format = (c: ComponentCompletionCandidate) => {
                 if (c.inputs.length > 0 || c.outputs.length > 0) {
                     return c.selector;
                 } else {
@@ -89,7 +110,7 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
                 }
             };
 
-            return completion.candidates.map<vscls.CompletionItem>(c => ({
+            return completion.candidates.components.map<vscls.CompletionItem>(c => ({
                 label: c.selector,
                 kind: vscls.CompletionItemKind.Class,
                 detail: `class ${c.class}`,
@@ -203,6 +224,17 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
                 }));
             }
         }
+        case '|': {
+            return isAtExpression(params) && completion.candidates.pipes.map<vscls.CompletionItem>(p => ({
+                label: p.name,
+                kind: vscls.CompletionItemKind.Class,
+                detail: `class ${p.class}`,
+                insertText: ` ${p.name}`,
+                documentation: path.relative(workspaceRoot, p.src),
+                data: { name: p },
+                sortText: "\u0000",
+            }));
+        }
     }
     return [];
 });
@@ -220,25 +252,43 @@ connection.onDefinition(async (params: vscls.TextDocumentPositionParams) => {
     if (settings["ng-c-ext"].disableGotoDefinition) {
         return [];
     }
-    
-    let inRange = await connection.sendRequest("template/inRange", params.position);
+
+    let doc = documents.get(params.textDocument.uri);
+    let text = doc.getText();
+    let pos = doc.offsetAt(params.position);
+    let head = text.substring(0, pos);
+    let startCaret = head.lastIndexOf("<");
+    let startBar = head.lastIndexOf("|");
+    let isAtBar = startBar > startCaret;
+    let isAtCaret = startCaret > startBar;
+
+    let inRange = await connection.sendRequest("template/inRange", params.position, isAtBar);
     if (!inRange) {
         return [];
     }
 
-    if (completion.candidates) {
-        let doc = documents.get(params.textDocument.uri);
-        let text = doc.getText();
-        let pos = doc.offsetAt(params.position);
-        let head = text.substring(0, pos);
+    if ( isAtCaret && completion.candidates.components) {
         let tail = text.substring(pos).match(XmlNameParts) || [""];
-        let start = head.lastIndexOf("<");
-        let selector = (head.substring(start + 1)
+        let selector = (head.substring(startCaret + 1)
             .split("").reverse().join("")
             .match(XmlNameParts) || [""])[0]
             .split("").reverse().join("") + tail;
 
-        let cand = completion.candidates.find(c => c.selector === selector);
+        let cand = completion.candidates.components.find(c => c.selector === selector);
+        if (cand) {
+            return vscls.Location.create(
+                uri.file(cand.src).toString(),
+                vscls.Range.create(0, 0, 0, 0)
+            );
+        }
+    } else if (isAtBar && completion.candidates.pipes) {
+        let tail = text.substring(pos).match(PipeNameParts) || [""];
+        let pipe = (head.substring(startBar + 1)
+            .split("").reverse().join("")
+            .match(PipeNameParts) || [""])[0]
+            .split("").reverse().join("") + tail;
+        
+        let cand = completion.candidates.pipes.find(c => c.name === pipe);
         if (cand) {
             return vscls.Location.create(
                 uri.file(cand.src).toString(),
@@ -246,6 +296,7 @@ connection.onDefinition(async (params: vscls.TextDocumentPositionParams) => {
             );
         }
     }
+
     return [];
 });
 
@@ -255,31 +306,50 @@ function sweepTsFiles() {
         if (err) {
             return;
         }
-        let oldCount = (completion.candidates && completion.candidates.length) || 0;
+        let oldCompCount = (completion.candidates.components && completion.candidates.components.length) || 0;
+        let oldPipeCount = (completion.candidates.pipes && completion.candidates.pipes.length) || 0;
 
-        completion.candidates = match.map(m => {
+        let cands = match.map(m => {
             let src = utils.createSourceFile(m);
-            let comps = utils.findComponents(utils.getClasses(src.statements));
-            if (!comps) {
+            let found = utils.findComponentsAndPipes(utils.getClasses(src.statements));
+            if (!found) {
                 return [];
             }
-            return comps.map(c => createCandidate(c[0], c[1], src));
+            return found.map(c => createCandidate(c[0], c[1], src));
         }).reduce((p, c) => p.concat(c)).filter(x => x);
+
+        completion.candidates.components = <ComponentCompletionCandidate[]>cands.filter(c => c.type == CandidateType.Component);
+        completion.candidates.pipes = <PipeCompletionCandidate[]>cands.filter(c => c.type == CandidateType.Pipe);
 
         if (settings["ng-c-ext"].shutupMode)
             return;
 
-        if (completion.candidates.length !== oldCount) {
+        if (completion.candidates.components.length !== oldCompCount) {
             connection.window.showInformationMessage(
-                `Found ${completion.candidates.length} Components`
+                `Found ${completion.candidates.components.length} Components`
+            );
+        }
+        if (completion.candidates.pipes.length !== oldPipeCount) {
+            connection.window.showInformationMessage(
+                `Found ${completion.candidates.pipes.length} Pipes`
             );
         }
     });
 }
 
 function createCandidate(decl: ts.ClassDeclaration, dec: ts.Decorator, src: ts.SourceFile): CompletionCandidate {
+    let type = utils.getDecoratorName(dec);
+    switch (type) {
+        case "Component": return createComponentCand(decl, dec, src);
+        case "Pipe": return createPipeCand(decl, dec, src);
+        default: return null;
+    }
+}
+
+function createComponentCand(decl: ts.ClassDeclaration, dec: ts.Decorator, src: ts.SourceFile): ComponentCompletionCandidate {
     let cand = {
         class: (<ts.Identifier>decl.name).text,
+        type: CandidateType.Component,
         selector: utils.getComponentDecoratorSelectorName(dec),
         inputs: utils.getInputBinding(decl),
         outputs: utils.getOutputBinding(decl),
@@ -287,6 +357,21 @@ function createCandidate(decl: ts.ClassDeclaration, dec: ts.Decorator, src: ts.S
     };
 
     if (cand.selector && cand.selector.match(XmlNameExact)) {
+        return cand;
+    }
+    return null;
+}
+
+function createPipeCand(decl: ts.ClassDeclaration, dec: ts.Decorator, src: ts.SourceFile): PipeCompletionCandidate {
+    let cand = {
+        class: "",//(<ts.Identifier>decl.name).text,
+        type: CandidateType.Pipe,
+        name: utils.getPipeName(dec),
+        pure: utils.getPipePureness(dec),
+        src: src.fileName
+    };
+
+    if (cand.name) {
         return cand;
     }
     return null;
@@ -303,15 +388,15 @@ function getTriggerCharacter(pos: vscls.TextDocumentPositionParams): string[] {
     ];
 }
 
-function findClosestCandidate(pos: vscls.TextDocumentPositionParams): CompletionCandidate {
-    if (completion.candidates && completion.candidates.length == 1) {
+function findClosestCandidate(pos: vscls.TextDocumentPositionParams): ComponentCompletionCandidate {
+    if (completion.candidates && completion.candidates.components.length == 1) {
         return completion.candidates[0];
     }
 
     let doc = documents.get(pos.textDocument.uri);
     let text = doc.getText().substring(0, doc.offsetAt(pos.position) - 1);
-    if (completion.candidates && completion.candidates.length > 1) {
-        let closest = completion.candidates
+    if (completion.candidates && completion.candidates.components.length > 1) {
+        let closest = completion.candidates.components
             .map((c, i) => ({ dist: calculateDistance(text, c), cand: c }))
             .filter(d => d.dist >= 0)
             .sort((r, l) => l.dist - r.dist)[0];
@@ -326,7 +411,7 @@ function findClosestCandidate(pos: vscls.TextDocumentPositionParams): Completion
     return null;
 }
 
-function calculateDistance(text: string, cand: CompletionCandidate) {
+function calculateDistance(text: string, cand: ComponentCompletionCandidate) {
     let pos = text.lastIndexOf(`<${cand.selector}`);
     if (pos > 0) {
         let isMatch = text.substring(pos).match(/^<(?:[^'"<>=]|=\s*"[^"]*"|=\s*'[^']*')+(>.*<)?$/);
@@ -335,4 +420,9 @@ function calculateDistance(text: string, cand: CompletionCandidate) {
         return pos + cand.selector.length;
     }
     return pos;
+}
+
+function isAtExpression(pos: vscls.TextDocumentPositionParams): boolean {
+    // TODO: complete me, please!
+    return true;
 }
