@@ -325,15 +325,17 @@ function sweepTsFiles(settings : config.Settings) {
         if (settings["ng-c-ext"].shutupMode)
             return;
 
-        if (completion.candidates.components.length !== oldCompCount) {
-            connection.window.showInformationMessage(
-                `Found ${completion.candidates.components.length} Components`
-            );
+        let newCompCount = completion.candidates.components.length;
+        let newPipeCount = completion.candidates.pipes.length;
+        let message: string = null;
+        if ( newCompCount !== oldCompCount ) {
+            message = `Found ${newCompCount} Components`;
         }
-        if (completion.candidates.pipes.length !== oldPipeCount) {
-            connection.window.showInformationMessage(
-                `Found ${completion.candidates.pipes.length} Pipes`
-            );
+        if (newPipeCount !== oldPipeCount) {
+            message = message ? message + `, ${newPipeCount} Pipes` : `Found ${newPipeCount} Pipes`;
+        }
+        if (message) {
+            connection.window.showInformationMessage(message,);
         }
     });
 }

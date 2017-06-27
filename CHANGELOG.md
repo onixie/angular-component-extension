@@ -9,6 +9,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Configuration `ng-c-ext.ngcignore` for excluding directories, such as node_modules.
 ### Change
 - Change travis to run on release branch
+- Improve message showing the number of components and pipes
 
 ## [v0.0.11]
 ### Change
