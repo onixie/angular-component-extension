@@ -4,6 +4,10 @@ All notable changes to the "angular-component-extension" extension will be docum
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
+### Add
+- Pipe support #2
+### Change
+- Change travis to run on release branch
 
 ## [v0.0.11]
 ### Change
