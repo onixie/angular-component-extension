@@ -42,13 +42,15 @@
     ],
     "grammars": [
       {
+        "injectTo": [
+          "source.ts"
+        ],
         "embeddedLanguages": {
-          "meta.style.css": "css",
-          "meta.template.property": "xml"
+          "meta.inline.template": "xml",
+          "meta.inline.style": "css"
         },
-        "scopeName": "source.ts.inline-template",
-        "language": "typescript",
-        "path": "./syntaxes/inline-template.tmLanguage.json"
+        "scopeName": "source.ts.ng.inline",
+        "path": "./syntaxes/ng.inline.tmLanguage.json"
       }
     ],
     "configuration": {

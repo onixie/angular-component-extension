@@ -1,12 +1,11 @@
 {
 	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-	"name": "Angular @Component Inline Template",
+	"name": "Angular @Component Inline Template & Styles",
+	"fileTypes": ["ts"],
+	"injectionSelector": "L:source -string -comment",
 	"patterns": [
 		{
 			"include": "#component"
-		},
-		{
-			"include": "source.ts"
 		}
 	],
 	"repository": {
@@ -32,6 +31,7 @@
 			"end": "`\\s*",
 			"patterns": [
 				{
+					"name": "meta.inline.template",
 					"include": "text.xml"
 				},
 				{
@@ -56,11 +56,7 @@
 			"end": "\\]",
 			"patterns": [
 				{
-					"name": "meta.separator",
-					"match": ","
-				},
-				{
-					"name": "meta.style.css",
+					"name": "meta.inline.style",
 					"begin": "`",
 					"end": "`",
 					"patterns": [
@@ -72,5 +68,5 @@
 			]
 		}
 	},
-	"scopeName": "source.ts.inline-template"
+	"scopeName": "source.ts.ng.inline"
 }
