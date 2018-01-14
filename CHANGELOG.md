@@ -5,6 +5,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [v0.0.13]
+### Change
+- Update vscode engine
+### Fix
+- Use grammar injection to avoid interfering other typescript based grammers
+
 ## [v0.0.12]
 ### Add
 - Pipe support #2
