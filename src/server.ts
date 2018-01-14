@@ -317,7 +317,7 @@ function sweepTsFiles(settings : config.Settings) {
                 return [];
             }
             return found.map(c => createCandidate(c[0], c[1], src));
-        }).reduce((p, c) => p.concat(c)).filter(x => x);
+        }).reduce((p, c) => p.concat(c), []).filter(x => x);
 
         completion.candidates.components = <ComponentCompletionCandidate[]>cands.filter(c => c.type == CandidateType.Component);
         completion.candidates.pipes = <PipeCompletionCandidate[]>cands.filter(c => c.type == CandidateType.Pipe);
