@@ -14,7 +14,7 @@
     "Angular", "Component", "TypeScript"
   ],
   "engines": {
-    "vscode": "^1.10.0"
+    "vscode": "^1.15.0"
   },
   "categories": [
     "Languages",

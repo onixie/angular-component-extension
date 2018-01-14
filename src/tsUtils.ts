@@ -19,7 +19,7 @@ export function createSourceFile(fileName: string, newText?: string): ts.SourceF
     return src;
 }
 
-export function getClasses(nodes: ts.Node[]): ts.ClassDeclaration[] {
+export function getClasses(nodes: ts.NodeArray<ts.Statement>): ts.ClassDeclaration[] {
     return nodes ? <ts.ClassDeclaration[]>nodes.filter(s =>
         s.kind === ts.SyntaxKind.ClassDeclaration
     ) : null;
