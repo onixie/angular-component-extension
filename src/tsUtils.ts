@@ -57,11 +57,11 @@ export function getDecorator(decl: ts.ClassDeclaration | ts.ClassElement, ...cri
 }
 
 export function getDecoratorName(dec: ts.Decorator): string {
-    let callExp = <ts.CallExpression>dec.expression;
-    let caller = <ts.Identifier>callExp.expression;
+    const callExp = <ts.CallExpression>dec.expression;
+    const caller = <ts.Identifier>callExp.expression;
 
-    let name = caller.text;
-    return name;
+    const name = caller.text || caller.escapedText;
+    return name as string;
 }
 
 export function getComponentDecoratorSelectorName(dec: ts.Decorator): string {
@@ -87,19 +87,19 @@ export function getOutputBinding(decl: ts.ClassDeclaration): ts.ClassElement[] {
 }
 
 export function getBindingName(prop: ts.ClassElement): string {
-    let dec = getDecorator(prop, "Input", "Output");
+    const dec = getDecorator(prop, "Input", "Output");
     if (!dec) {
         return null;
     }
 
-    let propName = (<ts.Identifier>prop.name).text;
-    let callExp = <ts.CallExpression>dec.expression;
-    let callee = <ts.StringLiteral>callExp.arguments[0];
+    const propName = (<ts.Identifier>prop.name).text || (<ts.Identifier>prop.name).escapedText;
+    const callExp = <ts.CallExpression>dec.expression;
+    const callee = <ts.StringLiteral>callExp.arguments[0];
     if (callee) {
         return callee.text;
     }
 
-    return propName;
+    return propName as string;
 }
 
 export function getPipeName(dec: ts.Decorator): string {
