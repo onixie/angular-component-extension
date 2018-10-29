@@ -1,6 +1,5 @@
 'use strict';
 
-import * as vscode from 'vscode';
 import * as vscls from 'vscode-languageserver';
 import uri from 'vscode-uri';
 import * as glob from 'glob';
@@ -82,7 +81,6 @@ interface Completion {
         components: ComponentCompletionCandidate[],
         pipes: PipeCompletionCandidate[]
     };
-    current?: ComponentCompletionCandidate
 }
 
 let completion: Completion = { candidates: { components: null, pipes: null } };
@@ -117,7 +115,6 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
                 detail: `class ${c.class}`,
                 insertText: format(c),
                 documentation: path.relative(workspaceRoot, c.src),
-                data: { selector: c },
                 sortText: "\u0000",
             }));
         }
@@ -126,7 +123,6 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
         case '/': {
             let c = findClosestCandidate(params);
             if (c) {
-                completion.current = null;
                 return [
                     {
                         label: c.selector,
@@ -134,7 +130,6 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
                         detail: `class ${c.class}`,
                         documentation: path.relative(workspaceRoot, c.src),
                         insertText: `${extra}${c.selector}>`,
-                        data: {},
                         sortText: "\u0000"
                     }
                 ];
@@ -165,7 +160,6 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
                     command: "cursorLeft",
                     title: "cursorLeft"
                 },
-                data: { input: i, src: cand.src },
                 sortText: "\u0000"
             }));
         }
@@ -194,7 +188,6 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
                         command: "cursorLeft",
                         title: "cursorLeft"
                     },
-                    data: { output: o, src: cand.src },
                     sortText: "\u0000"
                 }));
             } else {
@@ -220,7 +213,6 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
                         command: "cursorLeft",
                         title: "cursorLeft"
                     },
-                    data: { input: i, src: cand.src },
                     sortText: "\u0000"
                 }));
             }
@@ -232,7 +224,6 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
                 detail: `class ${p.class}`,
                 insertText: ` ${p.name}`,
                 documentation: path.relative(workspaceRoot, p.src),
-                data: { name: p },
                 sortText: "\u0000",
             }));
         }
@@ -241,10 +232,6 @@ connection.onCompletion(async (params: vscls.TextDocumentPositionParams) => {
 });
 
 connection.onCompletionResolve((item: vscls.CompletionItem): vscls.CompletionItem => {
-    if (item.data.selector) {
-        completion.current = item.data.selector;
-    }
-
     return item;
 })
 
@@ -399,14 +386,11 @@ function findClosestCandidate(pos: vscls.TextDocumentPositionParams): ComponentC
     let doc = documents.get(pos.textDocument.uri);
     let text = doc.getText().substring(0, doc.offsetAt(pos.position) - 1);
     if (completion.candidates && completion.candidates.components.length > 1) {
-        let closest = completion.candidates.components
+        const closest = completion.candidates.components
             .map((c, i) => ({ dist: calculateDistance(text, c), cand: c }))
             .filter(d => d.dist >= 0)
             .sort((r, l) => l.dist - r.dist)[0];
         if (closest) {
-            if (completion.current && completion.current.selector == closest.cand.selector) {
-                return completion.current;
-            }
             return closest.cand;
         }
     }
