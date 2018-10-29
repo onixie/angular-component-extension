@@ -11,13 +11,15 @@
     "url": "https://github.com/onixie/angular-component-extension.git"
   },
   "keywords": [
-    "Angular", "Component", "TypeScript"
+    "Angular",
+    "Component",
+    "TypeScript"
   ],
   "engines": {
     "vscode": "^1.15.0"
   },
   "categories": [
-    "Languages",
+    "Programming Languages",
     "Formatters",
     "Other"
   ],
@@ -62,7 +64,7 @@
           "type": "boolean",
           "default": false
         },
-        "ng-c-ext.disableInlineStylesFormat":{
+        "ng-c-ext.disableInlineStylesFormat": {
           "description": "Disable format for in-line styles",
           "type": "boolean",
           "default": false
@@ -85,7 +87,9 @@
         "ng-c-ext.ngcignore": {
           "description": "Exclude files and directories to look for according to glob patterns",
           "type": "array",
-          "default": ["**/node_modules/**"]
+          "default": [
+            "**/node_modules/**"
+          ]
         }
       }
     }
