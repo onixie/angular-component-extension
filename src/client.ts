@@ -7,7 +7,7 @@ let selPat = /\w(\w|\d|[-_\\])*/g
 
 export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
     let serverModule = context.asAbsolutePath(path.join('out', 'src', 'server.js'));
-    let debugOptions = { execArgv: ["--nolazy", "--debug=6004"] };
+    let debugOptions = { execArgv: ["--nolazy", "--inspect=6004"] };
 
     let serverOptions: vsclc.ServerOptions = {
         run: { module: serverModule, transport: vsclc.TransportKind.ipc },
@@ -15,7 +15,11 @@ export function setup(context: vsc.ExtensionContext): vsclc.LanguageClient {
     }
 
     let clientOptions: vsclc.LanguageClientOptions = {
-        documentSelector: ['typescript', 'html', 'razor'],
+        documentSelector: [ 
+            { language: 'typescript', scheme: 'file' }, 
+            { language: 'html', scheme: 'file' }, 
+            { language: 'razor', scheme: 'file' }
+        ],
         synchronize: {
             configurationSection: 'ng-c-ext',
             fileEvents: vsc.workspace.createFileSystemWatcher('**/*.ts')
