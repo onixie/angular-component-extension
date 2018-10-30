@@ -6,7 +6,7 @@ os:
 
 language: node_js
 node_js:
-  - "6"
+  - "10"
 
 before_install:
   - if [ $TRAVIS_OS_NAME == "linux" ]; then
