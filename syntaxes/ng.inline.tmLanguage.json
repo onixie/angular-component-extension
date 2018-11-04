@@ -5,30 +5,17 @@
 	"injectionSelector": "L:source -string -comment",
 	"patterns": [
 		{
-			"include": "#component"
+			"include": "#template"
+		},
+		{
+			"include": "#styles"
 		}
 	],
 	"repository": {
-		"component": {
-			"name": "meta.component.decoration",
-			"begin": "@\\s*Component\\s*\\(\\s*\\{",
-			"end": "\\}\\s*\\)",
-			"patterns": [
-				{
-					"include": "#template"
-				},
-				{
-					"include": "#styles"
-				},
-				{
-					"include": "source.ts"
-				}
-			]
-		},
 		"template": {
 			"name": "meta.template.property",
-			"begin": "(?<=template)\\s*:\\s*`",
-			"end": "`\\s*",
+			"begin": "(?<=template:)\\s*`",
+			"end": "`",
 			"patterns": [
 				{
 					"name": "meta.inline.template",
@@ -52,15 +39,15 @@
 		},
 		"styles": {
 			"name": "meta.styles.property",
-			"begin": "(?<=styles)\\s*:\\s*\\[",
+			"begin": "(?<=styles:)\\s*\\[",
 			"end": "\\]",
 			"patterns": [
 				{
-					"name": "meta.inline.style",
 					"begin": "`",
 					"end": "`",
 					"patterns": [
 						{
+							"name": "meta.inline.style",
 							"include": "source.css"
 						}
 					]
