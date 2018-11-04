@@ -5,6 +5,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [v0.0.14]
+### Fix
+- Fix broken grammars
+- Fix dead lock issue while handling jsdoc-annotated completion candidates
+- Fix build failure due to old nodejs/typescript versions.
+
 ## [v0.0.13]
 ### Change
 - Update vscode engine
